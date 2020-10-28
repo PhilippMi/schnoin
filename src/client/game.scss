@@ -1,0 +1,15 @@
+.game {
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+          ". . ."
+          ". . ."
+          ". my-hand .";
+
+  &__my-hand {
+    grid-area: my-hand;
+    display: flex;
+  }
+}

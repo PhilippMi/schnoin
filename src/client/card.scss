@@ -1,0 +1,8 @@
+$image-path: "../../assets/cards.jpg";
+
+.card {
+  width: 130px;
+  height: 200px;
+  background-image: url($image-path);
+  background-size: 900% 400%;
+}

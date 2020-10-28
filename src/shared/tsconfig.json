@@ -1,15 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2015",
-    "module": "commonjs",
+    "module": "ES6",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
-    "baseUrl": "./client",
-    "paths": {
-      "~*": ["./*"]
-    }
   }
 }
