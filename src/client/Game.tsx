@@ -9,7 +9,9 @@ interface GameProps {
 
 export function Game(props: GameProps) {
     const cardItems = props.state.myCards.map(c =>
-        <CardView card={c} key={`${c.suit}.${c.rank}`}></CardView>
+        <div className="game__card" key={`${c.suit}.${c.rank}`}>
+            <CardView card={c}/>
+        </div>
     )
     return <div className="game">
         <div className="game__my-hand">

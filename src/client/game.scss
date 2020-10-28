@@ -1,15 +1,24 @@
 .game {
   height: 100%;
+  padding: 10%;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr 5fr 1fr;
+  grid-template-rows: 1fr 5fr 1fr;
   grid-template-areas:
           ". . ."
           ". . ."
           ". my-hand .";
+  justify-items: stretch;
+  justify-content: stretch;
 
   &__my-hand {
     grid-area: my-hand;
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 10px;
+  }
+
+  &__card {
+    width: 100%;
   }
 }
