@@ -19,7 +19,7 @@ export function getGame(id: string): GameModel {
 
 function createGame(id: string): GameModel {
     const deck = new Deck();
-    const playerCards = deck.distribute(5);
+    const playerCards = deck.distribute(4);
     let players = playerCards.map((cards, i) => createPlayer(cards, i));
     return {
         id,

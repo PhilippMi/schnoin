@@ -1,4 +1,5 @@
 import {Card, Rank, Suit} from "../shared/Card"
+import {isWeli} from "./cardUtils";
 
 export class Deck {
     cards: Card[]
@@ -25,8 +26,9 @@ function createDeck(): Card[] {
         if (!isNaN(suit)) {
             for (let rankName in Rank) {
                 const rank = Number(rankName)
-                if (!isNaN(rank) && (rank !== Rank.Six || suit === Suit.Bells)) {
-                    cards.push({suit, rank})
+                const card = {suit, rank}
+                if (!isNaN(rank) && (rank !== Rank.Six || isWeli(card))) {
+                    cards.push(card)
                 }
             }
         }
