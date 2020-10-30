@@ -22,7 +22,8 @@ function createGame(id: string): GameModel {
     return {
         id,
         deck,
-        players: playerCards.map((cards, i) => createPlayer(cards, i))
+        players: playerCards.map((cards, i) => createPlayer(cards, i)),
+        trick: []
     }
 }
 
@@ -30,6 +31,7 @@ function createPlayer(cards: Card[], i: number): GameModel['players'][0] {
     return {
         cards,
         name: `player ${i+1}`,
+        id: i.toString(),
         tricksWon: 0
     }
 }

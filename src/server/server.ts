@@ -3,6 +3,7 @@ import express from "express";
 import {apiRouter} from "./api";
 
 const app = express();
+app.use(express.json())
 
 const bundler = new Bundler('src/client/index.html', {});
 
