@@ -8,7 +8,8 @@ export interface GameProps {
 }
 
 interface GameState {
-    state: PlayerGameState | null,
+    stateHistory: PlayerGameState[],
+    stateIndex: number,
     id: string
 }
 
@@ -18,24 +19,50 @@ export class Game extends Component<GameProps, GameState> {
     constructor(props: GameProps) {
         super(props);
         this.state = {
-            state: null,
+            stateHistory: [],
+            stateIndex: -1,
             id: uuid()
         }
     }
 
-    componentDidMount() {
-        this.fetchState().catch(console.error);
-        this.interval = window.setInterval(() => this.fetchState(), 5000)
+    async componentDidMount() {
+        this.processToEnd().catch(console.error)
+        this.interval = window.setInterval(() => this.process(), 1000)
     }
 
     componentWillUnmount() {
         window.clearInterval(this.interval)
     }
 
-    private async fetchState() {
-        const response = await fetch(`/api/game/${this.state.id}/state`)
-        const state: PlayerGameState = await response.json()
-        this.setState({state})
+    private async process() {
+        await this.fetchUpdates();
+        if (this.state.stateIndex + 1 < this.state.stateHistory.length) {
+            this.setState((prevState) => ({
+                stateIndex: prevState.stateIndex + 1
+            }))
+        }
+    }
+
+    private async processToEnd() {
+        await this.fetchUpdates();
+        this.setState((prevState) => ({
+            stateIndex: prevState.stateHistory.length - 1
+        }))
+    }
+
+    private async fetchUpdates() {
+        let endpoint = `/api/game/${this.state.id}/updates`;
+        const stateHistory = this.state.stateHistory;
+        if (stateHistory.length > 0) {
+            endpoint += `/${stateHistory[stateHistory.length - 1].id}`
+        }
+        const response = await fetch(endpoint)
+        const updates: PlayerGameState[] = await response.json()
+        if (updates.length > 0) {
+            this.setState((prevState) => ({
+                stateHistory: prevState.stateHistory.concat(updates)
+            }))
+        }
     }
 
     private selectCard(card: Card) {
@@ -46,14 +73,15 @@ export class Game extends Component<GameProps, GameState> {
             },
             body: JSON.stringify(card)
         })
-            .then(() => this.fetchState())
+            .then(() => this.process())
             .catch(console.error)
     }
 
     render() {
-        if (!this.state.state) {
+        if (this.state.stateIndex === -1) {
             return null
         }
-        return <Round state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
+        let currentState = this.state.stateHistory[this.state.stateIndex];
+        return <Round state={currentState} onSelectCard={(c) => this.selectCard(c)}/>
     }
 }

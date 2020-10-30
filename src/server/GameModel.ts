@@ -1,6 +1,5 @@
 import {Deck} from "./Deck";
 import {Card} from "../shared/Card";
-import {Player} from "../shared/PlayerGameSate";
 
 type Trick = {
     playerId: string
@@ -8,8 +7,22 @@ type Trick = {
 }[];
 
 export interface GameModel {
-    trick: Trick;
     id: string
     deck: Deck
-    players: Player[]
+    players: {
+        id: string
+        name: string
+        // todo token
+    }[]
+    stateHistory: GameState[]
+}
+
+export interface GameState {
+    id: string
+    trick: Trick;
+    playerState: {
+        id: string
+        cards: Card[]
+        tricksWon: number
+    }[]
 }

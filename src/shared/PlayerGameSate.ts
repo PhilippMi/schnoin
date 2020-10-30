@@ -20,6 +20,7 @@ export interface Opponent {
 }
 
 export interface PlayerGameState {
+    id: string
     player: Player
     opponents: Opponent[]
     trick: Trick

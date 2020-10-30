@@ -1,6 +1,7 @@
 import {GameModel} from "./GameModel";
 import {Deck} from "./Deck";
 import {Card} from "../shared/Card";
+import {v4 as uuid} from "uuid";
 
 const games: GameModel[] = [];
 
@@ -19,19 +20,27 @@ export function getGame(id: string): GameModel {
 function createGame(id: string): GameModel {
     const deck = new Deck();
     const playerCards = deck.distribute(5);
+    let players = playerCards.map((cards, i) => createPlayer(cards, i));
     return {
         id,
         deck,
-        players: playerCards.map((cards, i) => createPlayer(cards, i)),
-        trick: []
+        players: players.map(p => ({name: p.name, id: p.id})),
+        stateHistory: [{
+            id: uuid(),
+            playerState: players.map(p => ({
+                id: p.id,
+                cards: p.cards,
+                tricksWon: 0
+            })),
+            trick: []
+        }]
     }
 }
 
-function createPlayer(cards: Card[], i: number): GameModel['players'][0] {
+function createPlayer(cards: Card[], i: number) {
     return {
         cards,
         name: `player ${i+1}`,
-        id: i.toString(),
-        tricksWon: 0
+        id: i.toString()
     }
 }
