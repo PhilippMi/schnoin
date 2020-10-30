@@ -21,7 +21,7 @@ export class Game extends Component<GameProps, GameState> {
 
     componentDidMount() {
         this.fetchState().catch(console.error);
-        this.interval = window.setInterval(() => this.fetchState(), 1000)
+        this.interval = window.setInterval(() => this.fetchState(), 5000)
     }
 
     componentWillUnmount() {

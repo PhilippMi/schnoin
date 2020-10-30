@@ -1,27 +1,13 @@
 import {Router} from 'express';
 import {PlayerGameState} from "../shared/PlayerGameSate";
-import {Rank, Suit} from "../shared/Card";
+import {Deck} from "./Deck";
 
 export const apiRouter = Router();
 
 apiRouter.get('/state', (req, res) => {
+    const deck = new Deck();
     const state: PlayerGameState = {
-        myCards: [{
-            rank: Rank.Deuce,
-            suit: Suit.Hearts
-        }, {
-            rank: Rank.King,
-            suit: Suit.Acorns
-        }, {
-            rank: Rank.Six,
-            suit: Suit.Bells
-        }, {
-            rank: Rank.Eight,
-            suit: Suit.Leaves
-        }, {
-            rank: Rank.Seven,
-            suit: Suit.Acorns
-        }]
+        myCards: deck.distribute(1)[0]
     }
     res.send(state);
 })
