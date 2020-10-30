@@ -22,7 +22,17 @@ apiRouter.post('/game/:id/trick', (req, res) => {
     const game = getGame(req.params.id)
     const card: Card = { suit: req.body.suit, rank: req.body.rank};
     playCard(game, '0', card)
+
+    // temporary
+    playCard(game, '1', randomCard(game.players[1].cards))
+    playCard(game, '2', randomCard(game.players[2].cards))
+    playCard(game, '3', randomCard(game.players[3].cards))
+
     res.send('ok')
+
+    function randomCard<T>(cards: T[]) {
+        return cards[Math.floor(Math.random() * cards.length)]
+    }
 })
 
 apiRouter.use((err: Error, req: Request, res: Response, next: NextFunction)  => {

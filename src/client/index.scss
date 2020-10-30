@@ -1,5 +1,9 @@
 @import "~modern-css-reset";
 
+button {
+  all: unset;
+}
+
 #root {
   height: 100vh;
 }

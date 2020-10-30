@@ -1,3 +1,4 @@
+import './trick.scss';
 import {Trick} from "../shared/PlayerGameSate";
 import React from "react";
 import {CardView} from "./CardView";

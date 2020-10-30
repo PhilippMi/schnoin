@@ -6,7 +6,7 @@
   grid-template-rows: 1fr 5fr 1fr;
   grid-template-areas:
           ". . ."
-          ". . ."
+          ". trick ."
           ". my-hand .";
   justify-items: stretch;
   justify-content: stretch;
@@ -16,6 +16,10 @@
     display: grid;
     grid-auto-flow: column;
     grid-gap: 10px;
+  }
+
+  &__trick {
+    grid-area: trick;
   }
 
   &__card {

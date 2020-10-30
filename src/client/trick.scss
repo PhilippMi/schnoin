@@ -1,0 +1,29 @@
+.trick {
+  position: relative;
+  height: 100%;
+  width: 100%;
+
+  &__card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    $cardOverlap: 25%;
+    $invOverlap: 100% - $cardOverlap;
+
+    &:nth-child(1) {
+      transform: translate(-50%, (-50% + $invOverlap));
+    }
+
+    &:nth-child(2) {
+      transform: translate((-50% - $invOverlap), -50%);
+    }
+
+    &:nth-child(3) {
+      transform: translate(-50%, (-50% - $invOverlap));
+    }
+
+    &:nth-child(4) {
+      transform: translate((-50% + $invOverlap), -50%);
+    }
+  }
+}
