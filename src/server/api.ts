@@ -1,13 +1,13 @@
 import {Router} from 'express';
 import {PlayerGameState} from "../shared/PlayerGameSate";
-import {Deck} from "./Deck";
+import {getGame} from "./GamesRepository";
 
 export const apiRouter = Router();
 
-apiRouter.get('/state', (req, res) => {
-    const deck = new Deck();
+apiRouter.get('/game/:id/state/', (req, res) => {
+    const game = getGame(req.params.id);
     const state: PlayerGameState = {
-        myCards: deck.distribute(1)[0]
+        myCards: game.players[0].cards
     }
     res.send(state);
 })

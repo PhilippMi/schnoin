@@ -1,12 +1,14 @@
 import React, {Component} from "react";
 import {PlayerGameState} from "../shared/PlayerGameSate";
 import {Round} from "./Round";
+import { v4 as uuid } from "uuid";
 
 export interface GameProps {
 }
 
 interface GameState {
-    state: PlayerGameState | null
+    state: PlayerGameState | null,
+    id: string
 }
 
 export class Game extends Component<GameProps, GameState> {
@@ -15,7 +17,8 @@ export class Game extends Component<GameProps, GameState> {
     constructor(props: GameProps) {
         super(props);
         this.state = {
-            state: null
+            state: null,
+            id: uuid()
         }
     }
 
@@ -29,7 +32,7 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     private async fetchState() {
-        const response = await fetch('/api/state')
+        const response = await fetch(`/api/game/${this.state.id}/state`)
         const state: PlayerGameState = await response.json()
         this.setState({state})
     }

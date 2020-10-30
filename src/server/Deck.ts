@@ -9,9 +9,7 @@ export class Deck {
     }
 
     public distribute(nPlayers: number): Card[][] {
-        const result: Card[][] = Array(nPlayers).fill([]);
-        result.forEach(player => player.push(...this.popCards(5)));
-        return result;
+        return Array(nPlayers).fill(null).map(() => this.popCards(5));
     }
 
     public popCards(nCards: number): Card[] {

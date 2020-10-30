@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
     "jsx": "react",
     "baseUrl": "./src/client",
     "paths": {
