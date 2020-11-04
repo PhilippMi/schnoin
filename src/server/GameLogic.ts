@@ -27,28 +27,32 @@ export function playCard(game: GameModel, playerId: string, card: Card) {
 
 function finishTrick(game: GameModel) {
     const currentTrick = game.stateHistory[0].trick
-    const playerId = getHighestCardPlayerId(currentTrick)
+    const playerId = getHighestCardPlayerId(currentTrick, game.trumpSuit)
 
     const newState = updateGame(game)
     getCurrentPlayerState(game, playerId).tricksWon++
     newState.trick = []
 }
 
-function getHighestCardPlayerId(currentTrick: GameState['trick']): string {
+function getHighestCardPlayerId(currentTrick: GameState['trick'], trumpSuit: Suit): string {
     return currentTrick.map(t => ({
-        value: getCardValue(t.card, currentTrick[0].card.suit),
+        value: getCardValue(t.card, currentTrick[0].card.suit, trumpSuit),
         playerId: t.playerId
     })).sort((a, b) => b.value - a.value)[0].playerId
 }
 
-function getCardValue(card: Card, initialSuit: Suit): number {
-    if (card.suit !== initialSuit) {
-        return 0
-    }
+function getCardValue(card: Card, initialSuit: Suit, trumpSuit: Suit): number {
+    const trumpOffset: number = Rank.Deuce + 1;
     if (isWeli(card)) {
-        return Rank.Deuce - 0.5
+        return trumpOffset + Rank.Deuce - 0.5
     }
-    return card.rank
+
+    if (card.suit === trumpSuit) {
+        return card.rank + trumpOffset
+    } else if (card.suit === initialSuit) {
+        return card.rank
+    }
+    return 0
 }
 
 function updateGame(game: GameModel): GameState {

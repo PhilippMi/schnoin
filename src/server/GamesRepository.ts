@@ -1,6 +1,6 @@
 import {GameModel} from "./GameModel";
 import {Deck} from "./Deck";
-import {Card} from "../shared/Card";
+import {Card, Suit} from "../shared/Card";
 import {v4 as uuid} from "uuid";
 
 const games: GameModel[] = [];
@@ -25,6 +25,7 @@ function createGame(id: string): GameModel {
         id,
         deck,
         players: players.map(p => ({name: p.name, id: p.id})),
+        trumpSuit: Suit.Hearts,
         stateHistory: [{
             id: uuid(),
             playerState: players.map(p => ({

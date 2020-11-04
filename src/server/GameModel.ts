@@ -1,5 +1,5 @@
 import {Deck} from "./Deck";
-import {Card} from "../shared/Card";
+import {Card, Suit} from "../shared/Card";
 
 type Trick = {
     playerId: string
@@ -16,6 +16,7 @@ export interface GameModel {
     id: string
     deck: Deck
     players: Player[]
+    trumpSuit: Suit
     stateHistory: GameState[]
 }
 
