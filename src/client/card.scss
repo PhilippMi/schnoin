@@ -1,14 +1,10 @@
+@use './card-mixins.scss' as mixins;
+
 $image-path: "../../assets/cards.jpg";
 
 .card {
-  width: 12vw;
+  @include mixins.cardSize();
   background-image: url($image-path);
   background-size: 900% 400%;
 
-  &::after {
-    content: '';
-    display: block;
-    width: 100%;
-    padding-bottom: (200 / 130) * 100%;
-  }
 }

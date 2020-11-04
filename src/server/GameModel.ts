@@ -6,23 +6,27 @@ type Trick = {
     card: Card
 }[];
 
+export interface Player {
+    id: string
+    name: string
+    // todo token
+}
+
 export interface GameModel {
     id: string
     deck: Deck
-    players: {
-        id: string
-        name: string
-        // todo token
-    }[]
+    players: Player[]
     stateHistory: GameState[]
+}
+
+export interface PlayerState {
+    id: string
+    cards: Card[]
+    tricksWon: number
 }
 
 export interface GameState {
     id: string
     trick: Trick;
-    playerState: {
-        id: string
-        cards: Card[]
-        tricksWon: number
-    }[]
+    playerState: PlayerState[]
 }

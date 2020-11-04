@@ -1,12 +1,18 @@
 import {NextFunction, Request, Response, Router} from 'express';
-import {PlayerGameState} from "../shared/PlayerGameSate";
+import {Opponent, PlayerGameState} from "../shared/PlayerGameSate";
 import {getGame} from "./GamesRepository";
 import {Card} from "../shared/Card";
 import {playCard} from "./GameLogic";
 import {UserError} from "./UserError";
-import {GameModel, GameState} from "./GameModel";
+import {GameModel, GameState, Player} from "./GameModel";
+import {getStateForPlayer} from "./gameUtils";
 
 export const apiRouter = Router();
+
+apiRouter.post('/game/:gameId/register/:playerToken', (req, res) => {
+    const game = getGame(req.params.gameId)
+    res.send(mapToUpdates(game, [game.stateHistory[0]]))
+})
 
 apiRouter.get('/game/:gameId/updates/', (req, res) => {
     const game = getGame(req.params.gameId)
@@ -25,11 +31,9 @@ apiRouter.get('/game/:gameId/updates/:lastUpdate', (req, res) => {
 
 function mapToUpdates(game: GameModel, updates: GameState[]): PlayerGameState[] {
     const player = game.players[0]
+    const opponents = game.players.filter(p => p !== player)
     return updates.map(update => {
-        const playerState = update.playerState.find(p => p.id === player.id)
-        if (!playerState) {
-            throw new Error(`cannot find player state for player ${player.id}`)
-        }
+        const playerState = getStateForPlayer(player, update)
         return {
             id: update.id,
             player: {
@@ -38,10 +42,20 @@ function mapToUpdates(game: GameModel, updates: GameState[]): PlayerGameState[] 
                 cards: playerState.cards,
                 tricksWon: playerState.tricksWon
             },
-            opponents: [],
+            opponents: opponents.map(o => mapOpponent(o, update)),
             trick: update.trick
         }
     })
+}
+
+function mapOpponent(opponent: Player, update: GameState): Opponent {
+    const opponentState = getStateForPlayer(opponent, update)
+    return {
+        id: opponent.id,
+        name: opponent.name,
+        nCards: opponentState.cards.length,
+        tricksWon: opponentState.tricksWon
+    }
 }
 
 apiRouter.post('/game/:id/trick', (req, res) => {

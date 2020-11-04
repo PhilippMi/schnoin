@@ -4,6 +4,7 @@ import React from "react";
 import {CardView} from "./CardView";
 import {Trick} from "./Trick";
 import {Card} from "../shared/Card";
+import {HiddenHand} from "./HiddenHand";
 
 interface RoundProps {
     state: PlayerGameState,
@@ -16,10 +17,18 @@ export function Round(props: RoundProps) {
             <CardView card={c}/>
         </button>
     )
+    const opponents = props.state.opponents.map((o, i) =>
+        <div className={`round__opponent round__opponent--${i + 1}`}>
+            <div className={`round__opponent-hand`}>
+                <HiddenHand nCards={o.nCards} />
+            </div>
+        </div>
+    )
     return <div className="round">
         <div className="round__my-hand">
             {cardItems}
         </div>
+        {opponents}
         <div className="round__trick">
             <Trick trick={props.state.trick} />
         </div>
