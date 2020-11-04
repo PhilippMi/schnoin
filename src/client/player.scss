@@ -1,0 +1,9 @@
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__name, &__won-tricks {
+    font-size: 1.5rem;
+  }
+}

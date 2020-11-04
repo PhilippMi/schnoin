@@ -7,12 +7,15 @@
   grid-template-areas:
           ". opponent2 ."
           "opponent1 trick opponent3"
-          ". my-hand .";
+          ". player .";
   justify-items: stretch;
   justify-content: stretch;
 
-  &__my-hand {
-    grid-area: my-hand;
+  &__player {
+    grid-area: player;
+  }
+
+  &__player-cards {
     display: grid;
     grid-auto-flow: column;
     grid-gap: 10px;
