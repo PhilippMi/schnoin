@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {PlayerGameState} from "../shared/PlayerGameSate";
 import {Round} from "./Round";
-import { v4 as uuid } from "uuid";
 import {Card} from "../shared/Card";
 
 export interface GameProps {
@@ -56,6 +55,8 @@ export class Game extends Component<GameProps, GameState> {
         if (stateHistory.length > 0) {
             endpoint += `/${stateHistory[stateHistory.length - 1].id}`
         }
+        endpoint += `?token=${this.props.token}`
+
         const response = await fetch(endpoint)
         const updates: PlayerGameState[] = await response.json()
         if (updates.length > 0) {

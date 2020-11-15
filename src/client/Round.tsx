@@ -19,7 +19,7 @@ export function Round(props: RoundProps) {
         </button>
     )
     const opponents = props.state.opponents.map((o, i) =>
-        <div className={`round__opponent round__opponent--${i + 1}`}>
+        <div className={`round__opponent round__opponent--${i + 1}`} key={o.id}>
             <PlayerView tricksWon={o.tricksWon} name={o.name}>
                 <div className={`round__opponent-hand`}>
                     <HiddenHand nCards={o.nCards} />

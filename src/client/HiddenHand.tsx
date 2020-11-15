@@ -7,8 +7,8 @@ interface HiddenHandProps {
 }
 
 export function HiddenHand(props: HiddenHandProps) {
-    const cards = Array(props.nCards).fill(null).map(() => (
-        <HiddenCard />
+    const cards = Array(props.nCards).fill(null).map((v, i) => (
+        <HiddenCard key={i}/>
     ))
     return <div className="hidden-hand">
         {cards}

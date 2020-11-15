@@ -23,24 +23,28 @@ apiRouter.post('/game/:gameId/start/', (req, res) => {
 })
 
 apiRouter.get('/game/:gameId/updates/', (req, res) => {
-    // TODO player token
+    const playerToken = req.query.token as string
     const game = getGame(req.params.gameId)
-    res.send(mapToUpdates(game, [game.stateHistory[0]]))
+    res.send(mapToUpdates(game, [game.stateHistory[0]], playerToken))
 })
 
 apiRouter.get('/game/:gameId/updates/:lastUpdate', (req, res) => {
-    // TODO player token
+    const playerToken = req.query.token as string
     const game = getGame(req.params.gameId)
     const lastUpdateIndex = game.stateHistory.findIndex(s => s.id === req.params.lastUpdate);
     if (lastUpdateIndex === -1) {
         throw new UserError(`Unknown state update ${req.params.lastUpdate}`)
     }
     const updates = game.stateHistory.slice(0, lastUpdateIndex).reverse()
-    res.send(mapToUpdates(game, updates))
+    res.send(mapToUpdates(game, updates, playerToken))
 })
 
-function mapToUpdates(game: GameModel, updates: GameState[]): PlayerGameState[] {
-    const player = game.players[0]
+function mapToUpdates(game: GameModel, updates: GameState[], playerToken: string): PlayerGameState[] {
+    const player = game.players.find(p => p.token === playerToken)
+    if (!player) {
+        throw new UserError(`No player with token ${playerToken} found`)
+    }
+
     const opponents = game.players.filter(p => p !== player)
     return updates.map(update => {
         const playerState = getStateForPlayer(player, update)
