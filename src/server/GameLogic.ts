@@ -45,10 +45,9 @@ export function getCardsAllowedToBePlayed(cards: Card[], currentTrick: Trick, tr
 
     let suitToPlay: Suit | undefined
 
-    // TODO weli case
-    if (cards.some(c => c.suit === initialSuit)) {
+    if (cards.some(c => c.suit === initialSuit && !isWeli(c))) {
         suitToPlay = initialSuit
-    } else if(cards.some(c => c.suit === trumpSuit)) {
+    } else if(cards.some(c => c.suit === trumpSuit || isWeli(c))) {
         suitToPlay = trumpSuit
     }
 
