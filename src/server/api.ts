@@ -2,7 +2,7 @@ import {NextFunction, Request, Response, Router} from 'express';
 import {Opponent, PlayerGameState} from "../shared/PlayerGameSate";
 import {getGame} from "./GamesRepository";
 import {Card} from "../shared/Card";
-import {playCard} from "./GameLogic";
+import {getCardsAllowedToBePlayed, playCard} from "./GameLogic";
 import {UserError} from "./UserError";
 import {GameModel, GameState, Player} from "./GameModel";
 import {getStateForPlayer} from "./gameUtils";
@@ -70,8 +70,10 @@ apiRouter.post('/game/:id/trick', (req, res) => {
 
     res.send('ok')
 
-    function randomCard<T>(cards: T[]) {
-        return cards[Math.floor(Math.random() * cards.length)]
+    function randomCard(cards: Card[]) {
+        const currentTrick = game.stateHistory[0].trick
+        const allowedCards = getCardsAllowedToBePlayed(cards, currentTrick, game.trumpSuit);
+        return allowedCards[Math.floor(Math.random() * allowedCards.length)]
     }
 })
 
