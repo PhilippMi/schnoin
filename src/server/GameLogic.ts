@@ -1,4 +1,4 @@
-import {GameModel, GameState, PlayerState} from "./GameModel"
+import {GameModel, GamePhase, GameState, PlayerState} from "./GameModel"
 import {Card, Rank, Suit} from "../shared/Card"
 import {UserError} from "./UserError"
 import {v4 as uuid} from "uuid";
@@ -6,6 +6,10 @@ import {isWeli} from "./cardUtils";
 import {Trick} from "../shared/PlayerGameSate";
 
 export function playCard(game: GameModel, playerId: string, card: Card) {
+    if (game.phase !== GamePhase.Started) {
+        throw new UserError('game has not yet started')
+    }
+
     const playerState = getCurrentPlayerState(game, playerId)
     ensureCardAllowed(card, playerState, game);
 

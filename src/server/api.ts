@@ -6,20 +6,30 @@ import {getCardsAllowedToBePlayed, playCard} from "./GameLogic";
 import {UserError} from "./UserError";
 import {GameModel, GameState, Player} from "./GameModel";
 import {getStateForPlayer} from "./gameUtils";
+import {registerPlayer, startGame} from "./GameManagement";
 
 export const apiRouter = Router();
 
-apiRouter.post('/game/:gameId/register/:playerToken', (req, res) => {
+apiRouter.put('/game/:gameId/register/', (req, res) => {
     const game = getGame(req.params.gameId)
-    res.send(mapToUpdates(game, [game.stateHistory[0]]))
+    registerPlayer(game, req.body.token, req.body.name);
+    res.status(201).send();
+})
+
+apiRouter.post('/game/:gameId/start/', (req, res) => {
+    const game = getGame(req.params.gameId)
+    startGame(game);
+    res.status(201).send();
 })
 
 apiRouter.get('/game/:gameId/updates/', (req, res) => {
+    // TODO player token
     const game = getGame(req.params.gameId)
     res.send(mapToUpdates(game, [game.stateHistory[0]]))
 })
 
 apiRouter.get('/game/:gameId/updates/:lastUpdate', (req, res) => {
+    // TODO player token
     const game = getGame(req.params.gameId)
     const lastUpdateIndex = game.stateHistory.findIndex(s => s.id === req.params.lastUpdate);
     if (lastUpdateIndex === -1) {
@@ -61,12 +71,12 @@ function mapOpponent(opponent: Player, update: GameState): Opponent {
 apiRouter.post('/game/:id/trick', (req, res) => {
     const game = getGame(req.params.id)
     const card: Card = { suit: req.body.suit, rank: req.body.rank};
-    playCard(game, '0', card)
+    playCard(game, game.players[0].id, card)
 
     // temporary
-    playCard(game, '1', randomCard(game.stateHistory[0].playerState[1].cards))
-    playCard(game, '2', randomCard(game.stateHistory[0].playerState[2].cards))
-    playCard(game, '3', randomCard(game.stateHistory[0].playerState[3].cards))
+    playCard(game, game.players[1].id, randomCard(game.stateHistory[0].playerState[1].cards))
+    playCard(game, game.players[2].id, randomCard(game.stateHistory[0].playerState[2].cards))
+    playCard(game, game.players[3].id, randomCard(game.stateHistory[0].playerState[3].cards))
 
     res.send('ok')
 

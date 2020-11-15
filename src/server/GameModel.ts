@@ -6,10 +6,16 @@ type Trick = {
     card: Card
 }[];
 
+export enum GamePhase {
+    Created,
+    Started,
+    Finished
+}
+
 export interface Player {
     id: string
     name: string
-    // todo token
+    token: string
 }
 
 export interface GameModel {
@@ -17,7 +23,8 @@ export interface GameModel {
     deck: Deck
     players: Player[]
     trumpSuit: Suit
-    stateHistory: GameState[]
+    stateHistory: GameState[],
+    phase: GamePhase
 }
 
 export interface PlayerState {

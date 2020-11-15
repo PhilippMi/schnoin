@@ -5,12 +5,13 @@ import { v4 as uuid } from "uuid";
 import {Card} from "../shared/Card";
 
 export interface GameProps {
+    id: string,
+    token: string
 }
 
 interface GameState {
     stateHistory: PlayerGameState[],
     stateIndex: number,
-    id: string
 }
 
 export class Game extends Component<GameProps, GameState> {
@@ -21,7 +22,6 @@ export class Game extends Component<GameProps, GameState> {
         this.state = {
             stateHistory: [],
             stateIndex: -1,
-            id: uuid()
         }
     }
 
@@ -51,7 +51,7 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     private async fetchUpdates() {
-        let endpoint = `/api/game/${this.state.id}/updates`;
+        let endpoint = `/api/game/${this.props.id}/updates`;
         const stateHistory = this.state.stateHistory;
         if (stateHistory.length > 0) {
             endpoint += `/${stateHistory[stateHistory.length - 1].id}`
@@ -66,7 +66,7 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     private selectCard(card: Card) {
-        fetch(`/api/game/${this.state.id}/trick`, {
+        fetch(`/api/game/${this.props.id}/trick`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
