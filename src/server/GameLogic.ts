@@ -5,7 +5,8 @@ import {v4 as uuid} from "uuid";
 import {isWeli} from "./cardUtils";
 import {Trick} from "../shared/PlayerGameSate";
 import {getCurrentTrick} from "./gameUtils";
-import {Event, eventBus} from "./event-bus";
+import {eventBus} from "./eventBus";
+import {EventType} from "../shared/Event";
 
 export function playCard(game: GameModel, playerId: string, card: Card) {
     const currentTrick = getCurrentTrick(game)
@@ -29,14 +30,14 @@ export function playCard(game: GameModel, playerId: string, card: Card) {
         card
     }]);
     const wasLastPlayer = newCardsInTrick.length === game.players.length;
+    let nextPlayerId = wasLastPlayer ? null : getNextPlayer(playerId, game).id;
     newState.trick = {
-        currentPlayerId: wasLastPlayer ? null : getNextPlayer(playerId, game).id,
+        currentPlayerId: nextPlayerId,
         cards: newCardsInTrick
     }
-    eventBus.trigger(game, Event.CardPlayed)
+    eventBus.trigger(game, { eventType: EventType.CardPlayed, payload: { card, playerId, nextPlayerId }})
 
     if(wasLastPlayer) {
-        newState.trick.currentPlayerId = null
         finishTrick(game)
     }
 }
@@ -83,11 +84,13 @@ function finishTrick(game: GameModel) {
 
     const newState = updateGame(game)
     getCurrentPlayerState(game, winningPlayerId).tricksWon++
+    eventBus.trigger(game, { eventType: EventType.TrickEnd, payload: { winningPlayerId }})
+
     newState.trick = {
         currentPlayerId: winningPlayerId,
         cards: []
     }
-    eventBus.trigger(game, Event.NewTrick)
+    eventBus.trigger(game, { eventType: EventType.NewTrick, payload: { startPlayerId: winningPlayerId }})
 }
 
 function getHighestCardPlayerId(currentTrick: Trick, trumpSuit: Suit): string {

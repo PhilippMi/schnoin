@@ -7,6 +7,7 @@ import {UserError} from "./UserError";
 import {GameModel, GameState, Player} from "./GameModel";
 import {getStateForPlayer} from "./gameUtils";
 import {registerPlayer, startGame} from "./GameManagement";
+import {getEventsForGame} from "./eventStore";
 
 export const apiRouter = Router();
 

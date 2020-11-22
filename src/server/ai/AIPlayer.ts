@@ -1,20 +1,21 @@
 import {GameModel, Player} from "../GameModel";
-import {Event, eventBus} from "../event-bus";
+import {eventBus} from "../eventBus";
 import {getCurrentTrick, getStateForPlayer} from "../gameUtils";
 import {registerPlayer} from "../GameManagement";
 import {v4 as uuid} from 'uuid';
 import {getCardsAllowedToBePlayed, playCard} from "../GameLogic";
 import {Trick} from "../../shared/PlayerGameSate";
+import {EventType} from "../../shared/Event";
 
 let playerIndex = 1;
 
-export class AiPlayer {
+export class AIPlayer {
     private readonly player: Player
 
     constructor(private readonly game: GameModel) {
         this.player = registerPlayer(game, uuid(), `AI ${playerIndex++}`)
-        eventBus.register(game, Event.CardPlayed, () => this.onUpdate())
-        eventBus.register(game, Event.NewTrick, () => this.onUpdate())
+        eventBus.register(game, EventType.CardPlayed, () => this.onUpdate())
+        eventBus.register(game, EventType.NewTrick, () => this.onUpdate())
     }
 
     onUpdate() {

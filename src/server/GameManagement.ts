@@ -2,8 +2,9 @@ import {GameModel, GamePhase, Player} from "./GameModel";
 import {v4 as uuid} from "uuid";
 import {Suit} from "../shared/Card";
 import {UserError} from "./UserError";
-import {AiPlayer} from "./ai/ai-player";
-import {Event, eventBus} from "./event-bus";
+import {AIPlayer} from "./ai/AIPlayer";
+import {eventBus} from "./eventBus";
+import {EventType} from "../shared/Event";
 
 const maxPlayers = 4;
 
@@ -28,10 +29,11 @@ export function startGame(game: GameModel) {
 
     const nAIPlayers = maxPlayers - game.players.length
     for(let i = 0; i < nAIPlayers; i++) {
-        new AiPlayer(game)
+        new AIPlayer(game)
     }
 
     game.trumpSuit = Suit.Hearts
+    let startPlayerId = game.players[0].id;
     game.stateHistory = [{
         id: uuid(),
         playerState: game.players.map(p => ({
@@ -40,10 +42,10 @@ export function startGame(game: GameModel) {
             tricksWon: 0
         })),
         trick: {
-            currentPlayerId: game.players[0].id,
+            currentPlayerId: startPlayerId,
             cards: []
         }
     }]
     game.phase = GamePhase.Started
-    eventBus.trigger(game, Event.NewTrick)
+    eventBus.trigger(game, { eventType: EventType.NewTrick, payload: { startPlayerId }})
 }
