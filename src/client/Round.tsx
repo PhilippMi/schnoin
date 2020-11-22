@@ -27,6 +27,7 @@ export function Round(props: RoundProps) {
             </PlayerView>
         </div>
     )
+    const playerIds = [props.state.player.id, ...props.state.opponents.map(o => o.id)]
     return <div className="round">
         <div className="round__player">
             <PlayerView tricksWon={props.state.player.tricksWon} name={props.state.player.name}>
@@ -37,7 +38,7 @@ export function Round(props: RoundProps) {
         </div>
         {opponents}
         <div className="round__trick">
-            <Trick trick={props.state.trick} />
+            <Trick trick={props.state.trick} playerIds={playerIds} />
         </div>
     </div>
 
