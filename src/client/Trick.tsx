@@ -8,7 +8,7 @@ export interface TrickProps {
 }
 
 export function Trick(props: TrickProps) {
-    const cardItems = props.trick.map(({card}) => (
+    const cardItems = props.trick.cards.map(({card}) => (
         <div className="trick__card" key={`${card.suit}.${card.rank}`}>
             <CardView card={card} />
         </div>

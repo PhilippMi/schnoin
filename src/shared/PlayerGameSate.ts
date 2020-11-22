@@ -1,9 +1,12 @@
 import {Card} from "./Card";
 
-export type Trick = {
-    playerId: string
-    card: Card
-}[];
+export interface Trick {
+    currentPlayerId: string | null;
+    cards: {
+        playerId: string
+        card: Card
+    }[]
+}
 
 export interface Player {
     name: string

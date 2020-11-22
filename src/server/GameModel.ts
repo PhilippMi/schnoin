@@ -1,10 +1,6 @@
 import {Deck} from "./Deck";
 import {Card, Suit} from "../shared/Card";
-
-type Trick = {
-    playerId: string
-    card: Card
-}[];
+import {Trick} from "../shared/PlayerGameSate";
 
 export enum GamePhase {
     Created,

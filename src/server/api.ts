@@ -2,7 +2,7 @@ import {NextFunction, Request, Response, Router} from 'express';
 import {Opponent, PlayerGameState} from "../shared/PlayerGameSate";
 import {getGame} from "./GamesRepository";
 import {Card} from "../shared/Card";
-import {getCardsAllowedToBePlayed, playCard} from "./GameLogic";
+import {playCard} from "./GameLogic";
 import {UserError} from "./UserError";
 import {GameModel, GameState, Player} from "./GameModel";
 import {getStateForPlayer} from "./gameUtils";
@@ -76,19 +76,7 @@ apiRouter.post('/game/:id/trick', (req, res) => {
     const game = getGame(req.params.id)
     const card: Card = { suit: req.body.suit, rank: req.body.rank};
     playCard(game, game.players[0].id, card)
-
-    // temporary
-    playCard(game, game.players[1].id, randomCard(game.stateHistory[0].playerState[1].cards))
-    playCard(game, game.players[2].id, randomCard(game.stateHistory[0].playerState[2].cards))
-    playCard(game, game.players[3].id, randomCard(game.stateHistory[0].playerState[3].cards))
-
     res.send('ok')
-
-    function randomCard(cards: Card[]) {
-        const currentTrick = game.stateHistory[0].trick
-        const allowedCards = getCardsAllowedToBePlayed(cards, currentTrick, game.trumpSuit);
-        return allowedCards[Math.floor(Math.random() * allowedCards.length)]
-    }
 })
 
 apiRouter.use((err: Error, req: Request, res: Response, next: NextFunction)  => {
