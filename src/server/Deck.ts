@@ -1,5 +1,5 @@
 import {Card, Rank, Suit} from "../shared/Card"
-import {isWeli} from "./cardUtils";
+import {isWeli} from "../shared/cardUtils";
 
 export class Deck {
     cards: Card[]

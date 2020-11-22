@@ -1,5 +1,6 @@
 import {Event, EventMap, EventType} from "../shared/Event";
 import {GameModel} from "./GameModel";
+import {v4 as uuid} from 'uuid';
 
 interface Listener {
     game?: GameModel
@@ -15,10 +16,11 @@ export const eventBus = {
         listeners.push({game, eventType, callback})
     },
 
-    trigger(game: GameModel, event: Event) {
+    trigger(game: GameModel, event: Omit<Event, 'id'>) {
+        const fullEvent = Object.assign({id: uuid()}, event)
         listeners
             .filter(l => (!l.eventType || l.eventType === event.eventType) && (!l.game || l.game === game))
-            .forEach(l => l.callback(event.payload, game))
+            .forEach(l => l.callback(fullEvent, game))
     },
 
     deregister(callback: Function) {

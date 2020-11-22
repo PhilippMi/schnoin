@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {PlayerGameState} from "../shared/PlayerGameSate";
 import {Round} from "./Round";
 import {Card} from "../shared/Card";
+import {Event} from "../shared/Event";
+import {processEvent} from "./processEvent";
 
 export interface GameProps {
     id: string,
@@ -9,8 +11,8 @@ export interface GameProps {
 }
 
 interface GameState {
-    stateHistory: PlayerGameState[],
-    stateIndex: number,
+    state: PlayerGameState | undefined,
+    eventsToProcess: Event[]
 }
 
 export class Game extends Component<GameProps, GameState> {
@@ -19,50 +21,64 @@ export class Game extends Component<GameProps, GameState> {
     constructor(props: GameProps) {
         super(props);
         this.state = {
-            stateHistory: [],
-            stateIndex: -1,
+            state: undefined,
+            eventsToProcess: []
         }
     }
 
     async componentDidMount() {
-        this.processToEnd().catch(console.error)
-        this.interval = window.setInterval(() => this.process(), 1000)
+        this.fetchState()
     }
 
     componentWillUnmount() {
         window.clearInterval(this.interval)
     }
 
-    private async process() {
-        await this.fetchUpdates();
-        if (this.state.stateIndex + 1 < this.state.stateHistory.length) {
-            this.setState((prevState) => ({
-                stateIndex: prevState.stateIndex + 1
-            }))
-        }
+    private async fetchState() {
+        const endpoint = `/api/game/${this.props.id}?token=${this.props.token}`;
+
+        const response = await fetch(endpoint)
+        const state: PlayerGameState = await response.json()
+        this.setState({
+            state
+        }, () => {
+            this.interval = window.setInterval(() => this.process(), 1000)
+        })
     }
 
-    private async processToEnd() {
+    private async process() {
         await this.fetchUpdates();
-        this.setState((prevState) => ({
-            stateIndex: prevState.stateHistory.length - 1
-        }))
+        const nextEvent = this.state.eventsToProcess[0];
+        if (nextEvent) {
+            this.setState((prevState) => {
+                if (!prevState.state) {
+                    return prevState
+                }
+                return {
+                    eventsToProcess: prevState.eventsToProcess.slice(1),
+                    state: updateState(prevState.state, nextEvent)
+                }
+            })
+        }
     }
 
     private async fetchUpdates() {
-        let endpoint = `/api/game/${this.props.id}/updates`;
-        const stateHistory = this.state.stateHistory;
-        if (stateHistory.length > 0) {
-            endpoint += `/${stateHistory[stateHistory.length - 1].id}`
+        if (!this.state.state) {
+            return
         }
-        endpoint += `?token=${this.props.token}`
 
+        const endpoint = `/api/game/${this.props.id}/events/${this.state.state.lastEventId}?token=${this.props.token}`
         const response = await fetch(endpoint)
-        const updates: PlayerGameState[] = await response.json()
-        if (updates.length > 0) {
-            this.setState((prevState) => ({
-                stateHistory: prevState.stateHistory.concat(updates)
-            }))
+        const events: Event[] = await response.json()
+        if (events.length > 0) {
+            this.setState((prevState) => {
+                const newState: PlayerGameState = JSON.parse(JSON.stringify(prevState.state))
+                newState.lastEventId = events[events.length - 1].id
+                return {
+                    state: newState,
+                    eventsToProcess: prevState.eventsToProcess.concat(events)
+                }
+            })
         }
     }
 
@@ -79,10 +95,16 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     render() {
-        if (this.state.stateIndex === -1) {
+        if (!this.state.state) {
             return null
         }
-        let currentState = this.state.stateHistory[this.state.stateIndex];
-        return <Round state={currentState} onSelectCard={(c) => this.selectCard(c)}/>
+        return <Round state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
     }
+}
+
+
+function updateState(state: PlayerGameState, event: Event): PlayerGameState {
+    const newState = JSON.parse(JSON.stringify(state))
+    processEvent(newState, event)
+    return newState
 }

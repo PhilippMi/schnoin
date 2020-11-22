@@ -1,15 +1,13 @@
-import {GameModel, GamePhase, GameState, Player, PlayerState} from "./GameModel"
+import {GameModel, GamePhase, Player, PlayerState} from "./GameModel"
 import {Card, Rank, Suit} from "../shared/Card"
 import {UserError} from "./UserError"
-import {v4 as uuid} from "uuid";
-import {isWeli} from "./cardUtils";
 import {Trick} from "../shared/PlayerGameSate";
-import {getCurrentTrick} from "./gameUtils";
 import {eventBus} from "./eventBus";
 import {EventType} from "../shared/Event";
+import {isSameCard, isWeli} from "../shared/cardUtils";
 
 export function playCard(game: GameModel, playerId: string, card: Card) {
-    const currentTrick = getCurrentTrick(game)
+    const currentTrick = game.trick
     if (game.phase !== GamePhase.Started || !currentTrick) {
         throw new UserError('game has not yet started')
     }
@@ -21,17 +19,15 @@ export function playCard(game: GameModel, playerId: string, card: Card) {
     const playerState = getCurrentPlayerState(game, playerId)
     ensureCardAllowed(card, playerState, game, currentTrick);
 
-    const newState = updateGame(game);
-
     const newPlayerState = getCurrentPlayerState(game, playerId)
-    newPlayerState.cards = playerState.cards.filter(c => c.suit !== card.suit || c.rank !== card.rank)
+    newPlayerState.cards = playerState.cards.filter(c => !isSameCard(c, card))
     const newCardsInTrick = currentTrick.cards.concat([{
         playerId,
         card
     }]);
     const wasLastPlayer = newCardsInTrick.length === game.players.length;
     let nextPlayerId = wasLastPlayer ? null : getNextPlayer(playerId, game).id;
-    newState.trick = {
+    game.trick = {
         currentPlayerId: nextPlayerId,
         cards: newCardsInTrick
     }
@@ -45,7 +41,7 @@ export function playCard(game: GameModel, playerId: string, card: Card) {
 function ensureCardAllowed(card: Card, playerState: PlayerState, game: GameModel, currentTrick: Trick) {
     const allowedCards = getCardsAllowedToBePlayed(playerState.cards, currentTrick, game.trumpSuit);
 
-    if (!allowedCards.find(c => c.suit === card.suit && c.rank === card.rank)) {
+    if (!allowedCards.find(c => isSameCard(c, card))) {
         throw new UserError('Cannot play this card');
     }
 }
@@ -79,14 +75,13 @@ export function getCardsAllowedToBePlayed(cards: Card[], currentTrick: Trick, tr
 }
 
 function finishTrick(game: GameModel) {
-    const currentTrick = game.stateHistory[0].trick
+    const currentTrick = game.trick
     const winningPlayerId = getHighestCardPlayerId(currentTrick, game.trumpSuit)
 
-    const newState = updateGame(game)
     getCurrentPlayerState(game, winningPlayerId).tricksWon++
     eventBus.trigger(game, { eventType: EventType.TrickEnd, payload: { winningPlayerId }})
 
-    newState.trick = {
+    game.trick = {
         currentPlayerId: winningPlayerId,
         cards: []
     }
@@ -119,16 +114,8 @@ function getCardValue(card: Card, initialSuit: Suit, trumpSuit: Suit): number {
     return 0
 }
 
-function updateGame(game: GameModel): GameState {
-    const newState: GameState = JSON.parse(JSON.stringify(game.stateHistory[0]))
-    newState.id = uuid();
-    game.stateHistory.splice(0, 0, newState)
-    return newState
-}
-
 function getCurrentPlayerState(game: GameModel, playerId: string) {
-    const currentGameState = game.stateHistory[0];
-    const playerState = currentGameState.playerState.find(p => p.id === playerId)
+    const playerState = game.playerState.find(p => p.id === playerId)
     if (!playerState) {
         throw new UserError(`cannot find player ${playerId} for game ${game.id}`)
     }

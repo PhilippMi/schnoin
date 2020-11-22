@@ -34,18 +34,15 @@ export function startGame(game: GameModel) {
 
     game.trumpSuit = Suit.Hearts
     let startPlayerId = game.players[0].id;
-    game.stateHistory = [{
-        id: uuid(),
-        playerState: game.players.map(p => ({
-            id: p.id,
-            cards: game.deck.popCards(5),
-            tricksWon: 0
-        })),
-        trick: {
-            currentPlayerId: startPlayerId,
-            cards: []
-        }
-    }]
+    game.playerState = game.players.map(p => ({
+        id: p.id,
+        cards: game.deck.popCards(5),
+        tricksWon: 0
+    }))
+    game.trick = {
+        currentPlayerId: startPlayerId,
+        cards: []
+    }
     game.phase = GamePhase.Started
     eventBus.trigger(game, { eventType: EventType.NewTrick, payload: { startPlayerId }})
 }

@@ -19,7 +19,8 @@ export interface GameModel {
     deck: Deck
     players: Player[]
     trumpSuit: Suit
-    stateHistory: GameState[],
+    trick: Trick;
+    playerState: PlayerState[]
     phase: GamePhase
 }
 
@@ -27,10 +28,4 @@ export interface PlayerState {
     id: string
     cards: Card[]
     tricksWon: number
-}
-
-export interface GameState {
-    id: string
-    trick: Trick;
-    playerState: PlayerState[]
 }

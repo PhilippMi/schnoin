@@ -26,5 +26,6 @@ export interface PlayerGameState {
     id: string
     player: Player
     opponents: Opponent[]
-    trick: Trick
+    trick: Trick,
+    lastEventId: string | null
 }

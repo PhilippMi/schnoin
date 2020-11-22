@@ -1,6 +1,6 @@
 import {GameModel, Player} from "../GameModel";
 import {eventBus} from "../eventBus";
-import {getCurrentTrick, getStateForPlayer} from "../gameUtils";
+import {getStateForPlayer} from "../gameUtils";
 import {registerPlayer} from "../GameManagement";
 import {v4 as uuid} from 'uuid';
 import {getCardsAllowedToBePlayed, playCard} from "../GameLogic";
@@ -19,15 +19,14 @@ export class AIPlayer {
     }
 
     onUpdate() {
-        let currentTrick = getCurrentTrick(this.game);
-        if (currentTrick?.currentPlayerId === this.player.id) {
-            playCard(this.game, this.player.id, this.randomCard(currentTrick))
+        if (this.game.trick.currentPlayerId === this.player.id) {
+            playCard(this.game, this.player.id, this.randomCard())
         }
     }
 
-    randomCard(currentTrick: Trick) {
-        const playerState = getStateForPlayer(this.player, this.game.stateHistory[0])
-        const allowedCards = getCardsAllowedToBePlayed(playerState.cards, currentTrick, this.game.trumpSuit)
+    randomCard() {
+        const playerState = getStateForPlayer(this.player, this.game)
+        const allowedCards = getCardsAllowedToBePlayed(playerState.cards, this.game.trick, this.game.trumpSuit)
         return allowedCards[Math.floor(Math.random() * allowedCards.length)]
     }
 

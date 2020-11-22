@@ -2,13 +2,14 @@ import {Card} from "./Card";
 
 
 export enum EventType {
-    NewTrick,
-    CardPlayed,
-    TrickEnd
+    NewTrick = 'newtrick',
+    CardPlayed = 'cardplayed',
+    TrickEnd = 'trickend'
 }
 
 
 export interface BaseEvent {
+    id: string
     eventType: EventType
     payload: object
 }

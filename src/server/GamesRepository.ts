@@ -24,6 +24,7 @@ function createGame(id: string): GameModel {
         deck,
         players: [],
         trumpSuit: Suit.Hearts,
-        stateHistory: []
+        trick: {currentPlayerId: null, cards: []},
+        playerState: []
     }
 }

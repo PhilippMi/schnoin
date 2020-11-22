@@ -4,10 +4,11 @@ import {getGame} from "./GamesRepository";
 import {Card} from "../shared/Card";
 import {playCard} from "./GameLogic";
 import {UserError} from "./UserError";
-import {GameModel, GameState, Player} from "./GameModel";
+import {GameModel, Player} from "./GameModel";
 import {getStateForPlayer} from "./gameUtils";
 import {registerPlayer, startGame} from "./GameManagement";
 import {getEventsForGame} from "./eventStore";
+import {Event} from "../shared/Event";
 
 export const apiRouter = Router();
 
@@ -23,48 +24,49 @@ apiRouter.post('/game/:gameId/start/', (req, res) => {
     res.status(201).send();
 })
 
-apiRouter.get('/game/:gameId/updates/', (req, res) => {
+apiRouter.get('/game/:gameId/', (req, res) => {
     const playerToken = req.query.token as string
     const game = getGame(req.params.gameId)
-    res.send(mapToUpdates(game, [game.stateHistory[0]], playerToken))
+    res.send(mapToGameState(game, playerToken))
 })
 
-apiRouter.get('/game/:gameId/updates/:lastUpdate', (req, res) => {
-    const playerToken = req.query.token as string
+apiRouter.get('/game/:gameId/events/:lastEvent', (req, res) => {
     const game = getGame(req.params.gameId)
-    const lastUpdateIndex = game.stateHistory.findIndex(s => s.id === req.params.lastUpdate);
-    if (lastUpdateIndex === -1) {
-        throw new UserError(`Unknown state update ${req.params.lastUpdate}`)
+    const events = getEventsForGame(game)
+
+    const lastEventIndex = events.findIndex(e => e.id === req.params.lastEvent);
+    if (lastEventIndex === -1) {
+        throw new UserError(`Unknown event ${req.params.lastEvent}`)
     }
-    const updates = game.stateHistory.slice(0, lastUpdateIndex).reverse()
-    res.send(mapToUpdates(game, updates, playerToken))
+    res.send(events.slice(lastEventIndex + 1))
 })
 
-function mapToUpdates(game: GameModel, updates: GameState[], playerToken: string): PlayerGameState[] {
+function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
     const player = game.players.find(p => p.token === playerToken)
     if (!player) {
         throw new UserError(`No player with token ${playerToken} found`)
     }
 
     const opponents = game.players.filter(p => p !== player)
-    return updates.map(update => {
-        const playerState = getStateForPlayer(player, update)
-        return {
-            id: update.id,
-            player: {
-                id: player.id,
-                name: player.name,
-                cards: playerState.cards,
-                tricksWon: playerState.tricksWon
-            },
-            opponents: opponents.map(o => mapOpponent(o, update)),
-            trick: update.trick
-        }
-    })
+    const playerState = getStateForPlayer(player, game)
+    const events = getEventsForGame(game);
+    const lastEvent: Event | undefined = events[events.length - 1]
+    return {
+        id: game.id,
+        player: {
+            id: player.id,
+            name: player.name,
+            cards: playerState.cards,
+            tricksWon: playerState.tricksWon
+        },
+        opponents: opponents.map(o => mapOpponent(o, game)),
+        trick: game.trick,
+        lastEventId: lastEvent?.id || null
+    }
 }
 
-function mapOpponent(opponent: Player, update: GameState): Opponent {
-    const opponentState = getStateForPlayer(opponent, update)
+function mapOpponent(opponent: Player, game: GameModel): Opponent {
+    const opponentState = getStateForPlayer(opponent, game)
     return {
         id: opponent.id,
         name: opponent.name,
