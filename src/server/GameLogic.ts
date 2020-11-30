@@ -1,4 +1,4 @@
-import {GameModel, GamePhase, Player, PlayerState} from "./GameModel"
+import {GameModel, GamePhase, Player} from "./GameModel"
 import {Card, Rank, Suit} from "../shared/Card"
 import {UserError} from "./UserError"
 import {Trick} from "../shared/PlayerGameSate";
@@ -16,17 +16,16 @@ export function playCard(game: GameModel, playerId: string, card: Card) {
         throw new UserError(`It is not player ${playerId}'s turn`)
     }
 
-    const playerState = getCurrentPlayerState(game, playerId)
-    ensureCardAllowed(card, playerState, game, currentTrick);
+    const player = getPlayer(game, playerId)
+    ensureCardAllowed(card, player, game, currentTrick);
 
-    const newPlayerState = getCurrentPlayerState(game, playerId)
-    newPlayerState.cards = playerState.cards.filter(c => !isSameCard(c, card))
+    player.cards = player.cards.filter(c => !isSameCard(c, card))
     const newCardsInTrick = currentTrick.cards.concat([{
         playerId,
         card
     }]);
     const wasLastPlayer = newCardsInTrick.length === game.players.length;
-    let nextPlayerId = wasLastPlayer ? null : getNextPlayer(playerId, game).id;
+    const nextPlayerId = wasLastPlayer ? null : getNextPlayer(playerId, game).id;
     game.trick = {
         currentPlayerId: nextPlayerId,
         cards: newCardsInTrick
@@ -38,8 +37,8 @@ export function playCard(game: GameModel, playerId: string, card: Card) {
     }
 }
 
-function ensureCardAllowed(card: Card, playerState: PlayerState, game: GameModel, currentTrick: Trick) {
-    const allowedCards = getCardsAllowedToBePlayed(playerState.cards, currentTrick, game.trumpSuit);
+function ensureCardAllowed(card: Card, player: Player, game: GameModel, currentTrick: Trick) {
+    const allowedCards = getCardsAllowedToBePlayed(player.cards, currentTrick, game.trumpSuit);
 
     if (!allowedCards.find(c => isSameCard(c, card))) {
         throw new UserError('Cannot play this card');
@@ -78,7 +77,7 @@ function finishTrick(game: GameModel) {
     const currentTrick = game.trick
     const winningPlayerId = getHighestCardPlayerId(currentTrick, game.trumpSuit)
 
-    getCurrentPlayerState(game, winningPlayerId).tricksWon++
+    getPlayer(game, winningPlayerId).tricksWon++
     eventBus.trigger(game, { eventType: EventType.TrickEnd, payload: { winningPlayerId }})
 
     game.trick = {
@@ -114,12 +113,12 @@ function getCardValue(card: Card, initialSuit: Suit, trumpSuit: Suit): number {
     return 0
 }
 
-function getCurrentPlayerState(game: GameModel, playerId: string) {
-    const playerState = game.playerState.find(p => p.id === playerId)
-    if (!playerState) {
+function getPlayer(game: GameModel, playerId: string) {
+    const player = game.players.find(p => p.id === playerId)
+    if (!player) {
         throw new UserError(`cannot find player ${playerId} for game ${game.id}`)
     }
-    return playerState
+    return player
 }
 
 function getNextPlayer(currentPlayerId: string, game: GameModel): Player {

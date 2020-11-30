@@ -1,9 +1,16 @@
 import {Opponent, Player, PlayerGameState} from "../shared/PlayerGameSate";
-import {CardPlayedEvent, Event, EventType, NewTrickEvent, TrickEndEvent} from "../shared/Event";
+import {CardPlayedEvent, Event, EventType, NewPlayerEvent, NewTrickEvent, TrickEndEvent} from "../shared/Event";
 import {isSameCard} from "../shared/cardUtils";
+import {getPlayerToken} from "./getPlayerToken";
 
-export function processEvent(state: PlayerGameState, event: Event) {
+export async function processEvent(state: PlayerGameState, event: Event) {
     switch (event.eventType) {
+        case EventType.NewPlayer:
+            newPlayer(state, event)
+            break
+        case EventType.NewRound:
+            await newRound(state)
+            break
         case EventType.CardPlayed:
             cardPlayed(state, event)
             break
@@ -18,6 +25,20 @@ export function processEvent(state: PlayerGameState, event: Event) {
 
 function isOpponent(player: Player | Opponent): player is Opponent {
     return typeof (player as Opponent).nCards === 'number';
+}
+
+async function newRound(state: PlayerGameState) {
+    const newState = await fetchGameState(state.id)
+    Object.assign(state, newState)
+}
+
+function newPlayer(state: PlayerGameState, event: NewPlayerEvent) {
+    state.opponents.push({
+        id: event.payload.id,
+        name: event.payload.name,
+        tricksWon: 0,
+        nCards: 0
+    })
 }
 
 function cardPlayed(state: PlayerGameState, event: CardPlayedEvent) {
@@ -51,4 +72,11 @@ function getPlayerById(state: PlayerGameState, id: string): Player | Opponent {
         throw new Error(`unknown player ${id}`)
     }
     return player
+}
+
+export async function fetchGameState(gameId: string): Promise<PlayerGameState> {
+    const endpoint = `/api/game/${gameId}?token=${getPlayerToken()}`;
+
+    const response = await fetch(endpoint)
+    return response.json()
 }

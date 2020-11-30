@@ -16,9 +16,18 @@ export function registerPlayer(game: GameModel, token: string, name: string) {
     const newPlayer: Player = {
         name,
         id: uuid(),
-        token
+        token,
+        cards: [],
+        tricksWon: 0
     };
     game.players.push(newPlayer)
+    eventBus.trigger(game, {
+        eventType: EventType.NewPlayer,
+        payload: {
+            name,
+            id: newPlayer.id
+        }
+    })
     return newPlayer;
 }
 
@@ -34,15 +43,26 @@ export function startGame(game: GameModel) {
 
     game.trumpSuit = Suit.Hearts
     let startPlayerId = game.players[0].id;
-    game.playerState = game.players.map(p => ({
-        id: p.id,
+    game.players.forEach(p => Object.assign(p, {
         cards: game.deck.popCards(5),
         tricksWon: 0
     }))
+    game.phase = GamePhase.Started
+    eventBus.trigger(game, {
+        eventType: EventType.NewRound,
+        payload: {
+            trumpSuit: game.trumpSuit,
+            players: game.players.map(p => ({
+                id: p.id,
+                nCards: p.cards.length,
+                tricksWon: p.tricksWon
+            }))
+        }
+    })
+
     game.trick = {
         currentPlayerId: startPlayerId,
         cards: []
     }
-    game.phase = GamePhase.Started
     eventBus.trigger(game, { eventType: EventType.NewTrick, payload: { startPlayerId }})
 }

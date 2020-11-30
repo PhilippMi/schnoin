@@ -4,7 +4,7 @@ import {v4 as uuid} from 'uuid';
 import {MainMenu} from "./MainMenu";
 import {getPlayerToken} from "./getPlayerToken";
 
-enum AppPhase {
+export enum AppPhase {
     Menu,
     Lobby,
     Game
@@ -20,14 +20,12 @@ interface AppState {
 }
 
 export class App extends Component<AppProps, AppState> {
-    private interval: number | undefined
-
     constructor(props: GameProps) {
-        super(props);
+        super(props)
         const url = new URL(document.location.href)
         this.state = {
             phase: AppPhase.Menu,
-            gameId: url.searchParams.get('game-id') || uuid(),
+            gameId: url.searchParams.get('game-id') || uuid().substring(0, 13),
             playerName: ''
         }
 
@@ -46,7 +44,12 @@ export class App extends Component<AppProps, AppState> {
                 onJoin={this.joinGame}
             />
         } else {
-            return <Game id={this.state.gameId} token={getPlayerToken()}/>
+            return <Game
+                id={this.state.gameId}
+                token={getPlayerToken()}
+                phase={this.state.phase}
+                onReady={() => this.ready()}
+            />
         }
     }
 
@@ -69,7 +72,12 @@ export class App extends Component<AppProps, AppState> {
         }
 
         registerForGame(this.state.gameId, this.state.playerName)
-            .then(() => startGame(this.state.gameId))
+            .then(() => this.setState({phase: AppPhase.Lobby}))
+            .catch(console.error)
+    }
+
+    private ready() {
+        startGame(this.state.gameId)
             .then(() => this.setState({phase: AppPhase.Game}))
             .catch(console.error)
     }

@@ -1,13 +1,18 @@
+import './game.scss';
+
 import React, {Component} from "react";
 import {PlayerGameState} from "../shared/PlayerGameSate";
 import {Round} from "./Round";
 import {Card} from "../shared/Card";
 import {Event} from "../shared/Event";
-import {processEvent} from "./processEvent";
+import {fetchGameState, processEvent} from "./processEvent";
+import {AppPhase} from "./App";
 
 export interface GameProps {
     id: string,
-    token: string
+    token: string,
+    phase: AppPhase,
+    onReady: () => void
 }
 
 interface GameState {
@@ -35,10 +40,7 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     private async fetchState() {
-        const endpoint = `/api/game/${this.props.id}?token=${this.props.token}`;
-
-        const response = await fetch(endpoint)
-        const state: PlayerGameState = await response.json()
+        const state: PlayerGameState = await fetchGameState(this.props.id)
         this.setState({
             state
         }, () => {
@@ -49,15 +51,12 @@ export class Game extends Component<GameProps, GameState> {
     private async process() {
         await this.fetchUpdates();
         const nextEvent = this.state.eventsToProcess[0];
-        if (nextEvent) {
-            this.setState((prevState) => {
-                if (!prevState.state) {
-                    return prevState
-                }
-                return {
-                    eventsToProcess: prevState.eventsToProcess.slice(1),
-                    state: updateState(prevState.state, nextEvent)
-                }
+        if (nextEvent && this.state.state) {
+            const eventsToProcess = this.state.eventsToProcess;
+            const updatedState = await updateState(this.state.state, nextEvent)
+            this.setState({
+                eventsToProcess: eventsToProcess.slice(1),
+                state: updatedState
             })
         }
     }
@@ -98,13 +97,22 @@ export class Game extends Component<GameProps, GameState> {
         if (!this.state.state) {
             return null
         }
-        return <Round state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
+        return (
+            <div className={`game ${this.props.phase === AppPhase.Lobby ? 'game--lobby' : ''}`}>
+                <Round state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
+                {this.props.phase === AppPhase.Lobby &&
+                    <div className="game__ready-button">
+                        <button onClick={() => this.props.onReady()}>Ready</button>
+                    </div>
+                }
+            </div>
+        )
     }
 }
 
 
-function updateState(state: PlayerGameState, event: Event): PlayerGameState {
+async function updateState(state: PlayerGameState, event: Event): Promise<PlayerGameState> {
     const newState = JSON.parse(JSON.stringify(state))
-    processEvent(newState, event)
+    await processEvent(newState, event)
     return newState
 }

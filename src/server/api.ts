@@ -5,7 +5,6 @@ import {Card} from "../shared/Card";
 import {playCard} from "./GameLogic";
 import {UserError} from "./UserError";
 import {GameModel, Player} from "./GameModel";
-import {getStateForPlayer} from "./gameUtils";
 import {registerPlayer, startGame} from "./GameManagement";
 import {getEventsForGame} from "./eventStore";
 import {Event} from "../shared/Event";
@@ -34,9 +33,14 @@ apiRouter.get('/game/:gameId/events/:lastEvent', (req, res) => {
     const game = getGame(req.params.gameId)
     const events = getEventsForGame(game)
 
-    const lastEventIndex = events.findIndex(e => e.id === req.params.lastEvent);
+    const lastEventId = req.params.lastEvent
+    if (lastEventId === 'null') {
+        return events
+    }
+
+    const lastEventIndex = events.findIndex(e => e.id === lastEventId)
     if (lastEventIndex === -1) {
-        throw new UserError(`Unknown event ${req.params.lastEvent}`)
+        throw new UserError(`Unknown event ${lastEventId}`)
     }
     res.send(events.slice(lastEventIndex + 1))
 })
@@ -48,7 +52,6 @@ function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
     }
 
     const opponents = game.players.filter(p => p !== player)
-    const playerState = getStateForPlayer(player, game)
     const events = getEventsForGame(game);
     const lastEvent: Event | undefined = events[events.length - 1]
     return {
@@ -56,22 +59,21 @@ function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
         player: {
             id: player.id,
             name: player.name,
-            cards: playerState.cards,
-            tricksWon: playerState.tricksWon
+            cards: player.cards,
+            tricksWon: player.tricksWon
         },
-        opponents: opponents.map(o => mapOpponent(o, game)),
+        opponents: opponents.map(mapOpponent),
         trick: game.trick,
         lastEventId: lastEvent?.id || null
     }
 }
 
-function mapOpponent(opponent: Player, game: GameModel): Opponent {
-    const opponentState = getStateForPlayer(opponent, game)
+function mapOpponent(opponent: Player): Opponent {
     return {
         id: opponent.id,
         name: opponent.name,
-        nCards: opponentState.cards.length,
-        tricksWon: opponentState.tricksWon
+        nCards: opponent.cards.length,
+        tricksWon: opponent.tricksWon
     }
 }
 
