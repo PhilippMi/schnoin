@@ -1,7 +1,8 @@
-import {Opponent, Player, PlayerGameState} from "../shared/PlayerGameState";
+import {Opponent, User, PlayerGameState} from "../shared/PlayerGameState";
 import {CardPlayedEvent, Event, EventType, NewPlayerEvent, NewTrickEvent, PlayerReadyEvent, TrickEndEvent} from "../shared/Event";
 import {isSameCard} from "../shared/cardUtils";
 import {getPlayerToken} from "./getPlayerToken";
+import {getOpponentIndexForPlayer} from "../shared/playerUtils";
 
 export async function processEvent(state: PlayerGameState, event: Event) {
     switch (event.eventType) {
@@ -26,7 +27,7 @@ export async function processEvent(state: PlayerGameState, event: Event) {
     }
 }
 
-function isOpponent(player: Player | Opponent): player is Opponent {
+function isOpponent(player: User | Opponent): player is Opponent {
     return typeof (player as Opponent).nCards === 'number';
 }
 
@@ -36,13 +37,15 @@ async function newRound(state: PlayerGameState) {
 }
 
 function newPlayer(state: PlayerGameState, event: NewPlayerEvent) {
-    state.opponents.push({
+    const index = getOpponentIndexForPlayer(state.player.index, event.payload.index)
+    state.opponents[index] = {
         id: event.payload.id,
         name: event.payload.name,
+        index: event.payload.index,
         tricksWon: 0,
         nCards: 0,
         ready: false
-    })
+    }
 }
 
 function playerReady(state: PlayerGameState, event: PlayerReadyEvent) {
@@ -75,8 +78,8 @@ function trickEnd(state: PlayerGameState, event: TrickEndEvent) {
     state.trick.currentPlayerId = null
 }
 
-function getPlayerById(state: PlayerGameState, id: string): Player | Opponent {
-    const player = (state.opponents as (Opponent | Player)[]).concat(state.player).find(p => p.id === id)
+function getPlayerById(state: PlayerGameState, id: string): User | Opponent {
+    const player = ([] as (Opponent | User | null)[]).concat(state.opponents).concat(state.player).find(p => p?.id === id)
     if (!player) {
         throw new Error(`unknown player ${id}`)
     }

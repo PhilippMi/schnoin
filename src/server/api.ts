@@ -8,6 +8,9 @@ import {GameModel, Player} from "./GameModel";
 import {markPlayerReady, registerPlayer} from "./GameManagement";
 import {getEventsForGame} from "./eventStore";
 import {Event} from "../shared/Event";
+import {getPlayerByToken} from "./gameUtils";
+import {getOpponentIndexForPlayer} from "../shared/playerUtils";
+import {maxPlayers} from "../shared/constants";
 
 export const apiRouter = Router();
 
@@ -46,12 +49,10 @@ apiRouter.get('/game/:gameId/events/:lastEvent', (req, res) => {
 })
 
 function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
-    const player = game.players.find(p => p.token === playerToken)
-    if (!player) {
-        throw new UserError(`No player with token ${playerToken} found`)
-    }
+    const player = getPlayerByToken(game, playerToken)
 
-    const opponents = game.players.filter(p => p !== player)
+    const opponents = getOpponentsForPlayer(game, player)
+
     const events = getEventsForGame(game);
     const lastEvent: Event | undefined = events[events.length - 1]
     return {
@@ -62,22 +63,45 @@ function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
             name: player.name,
             cards: player.cards,
             tricksWon: player.tricksWon,
-            ready: player.ready
+            ready: player.ready,
+            index: game.players.indexOf(player)
         },
-        opponents: opponents.map(mapOpponent),
+        opponents: opponents,
         trick: game.trick,
         lastEventId: lastEvent?.id || null
     }
 }
 
-function mapOpponent(opponent: Player): Opponent {
-    return {
-        id: opponent.id,
-        name: opponent.name,
-        nCards: opponent.cards.length,
-        tricksWon: opponent.tricksWon,
-        ready: opponent.ready
+function getOpponentsForPlayer(game: GameModel, player: Player) {
+
+    const playerIndex = game.players.indexOf(player)
+    const opponents: (Opponent | null)[] = Array(maxPlayers).fill(null);
+    game.players.forEach((p, opponentIndex) => {
+        if (p !== player) {
+            const i = getOpponentIndexForPlayer(playerIndex, opponentIndex)
+            opponents[i] = {
+                id: p.id,
+                name: p.name,
+                index: opponentIndex,
+                nCards: p.cards.length,
+                tricksWon: p.tricksWon,
+                ready: p.ready
+            }
+        }
+    })
+
+
+    for(let i = 1; i< game.players.length; i++) {
+        const index = (playerIndex + i) % game.players.length;
+        const player = game.players[index]
+        if (player) {
+            opponents.push()
+        } else {
+            opponents.push(null)
+        }
+
     }
+    return opponents;
 }
 
 apiRouter.post('/game/:id/trick', (req, res) => {

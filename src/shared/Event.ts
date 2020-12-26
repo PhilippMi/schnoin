@@ -22,6 +22,7 @@ export interface NewPlayerEvent extends BaseEvent {
     payload: {
         name: string
         id: string
+        index: number
     }
 }
 

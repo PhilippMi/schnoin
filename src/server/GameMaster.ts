@@ -1,9 +1,10 @@
 import {eventBus} from "./eventBus";
 import {GameModel} from "./GameModel";
 import {EventType} from "../shared/Event";
-import {maxPlayers, startGame} from "./GameManagement";
+import {startGame} from "./GameManagement";
 import {GamePhase} from "../shared/PlayerGameState";
 import {AIPlayer} from "./ai/AIPlayer";
+import {maxPlayers} from "../shared/constants";
 
 export function startGameMaster(game: GameModel) {
     let gameStarting = false

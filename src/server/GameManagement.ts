@@ -2,12 +2,10 @@ import {GameModel, Player} from "./GameModel";
 import {v4 as uuid} from "uuid";
 import {Suit} from "../shared/Card";
 import {UserError} from "./UserError";
-import {AIPlayer} from "./ai/AIPlayer";
 import {eventBus} from "./eventBus";
 import {EventType} from "../shared/Event";
 import {GamePhase} from "../shared/PlayerGameState";
-
-export const maxPlayers = 4;
+import {maxPlayers} from "../shared/constants";
 
 export function registerPlayer(game: GameModel, token: string, name: string) {
     if(game.phase !== GamePhase.Created) {
@@ -30,7 +28,8 @@ export function registerPlayer(game: GameModel, token: string, name: string) {
         eventType: EventType.NewPlayer,
         payload: {
             name,
-            id: newPlayer.id
+            id: newPlayer.id,
+            index: game.players.length - 1
         }
     })
     return newPlayer

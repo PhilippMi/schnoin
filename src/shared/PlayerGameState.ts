@@ -11,17 +11,17 @@ export interface Trick {
 export interface Player {
     name: string
     id: string
-    cards: Card[]
+    index: number
     tricksWon: number
     ready: boolean
 }
 
-export interface Opponent {
-    name: string
-    id: string
+export interface User extends Player {
+    cards: Card[]
+}
+
+export interface Opponent extends Player {
     nCards: number
-    tricksWon: number
-    ready: boolean
 }
 
 export enum GamePhase {
@@ -33,8 +33,8 @@ export enum GamePhase {
 export interface PlayerGameState {
     gamePhase: GamePhase
     id: string
-    player: Player
-    opponents: Opponent[]
+    player: User
+    opponents: (Opponent | null)[]
     trick: Trick,
     lastEventId: string | null
 }
