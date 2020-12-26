@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "parcel build src/client/index.html",
-    "serve": "ts-node-script src/server/server.ts"
+    "serve": "ts-node-script src/server/server.ts",
+    "start": "serve"
   },
   "author": "Philipp Mitterer",
   "license": "MIT",
