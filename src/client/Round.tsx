@@ -22,7 +22,7 @@ export function Round(props: RoundProps) {
         <div className={`round__opponent round__opponent--${i + 1}`} key={i}>
             {o && <PlayerView tricksWon={o.tricksWon} name={o.name}>
                 <div className={`round__opponent-hand`}>
-                    <HiddenHand nCards={o.nCards} />
+                    <HiddenHand nCards={o.nCards} rotated={i % 2 === 0}/>
                 </div>
             </PlayerView>}
         </div>

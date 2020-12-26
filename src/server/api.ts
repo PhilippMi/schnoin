@@ -75,7 +75,7 @@ function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
 function getOpponentsForPlayer(game: GameModel, player: Player) {
 
     const playerIndex = game.players.indexOf(player)
-    const opponents: (Opponent | null)[] = Array(maxPlayers).fill(null);
+    const opponents: (Opponent | null)[] = Array(maxPlayers - 1).fill(null);
     game.players.forEach((p, opponentIndex) => {
         if (p !== player) {
             const i = getOpponentIndexForPlayer(playerIndex, opponentIndex)

@@ -6,10 +6,14 @@ button {
 }
 
 html {
-  font-size: 1vw;
+  font-size: min(1vw, 1vh);
+}
+
+body {
+  font-size: 12px;
 }
 
 #root {
-  height: 100vh;
+  height: 100rem;
   font-family: sans-serif;
 }

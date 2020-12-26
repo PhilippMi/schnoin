@@ -3,11 +3,11 @@
   padding: 2%;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-rows: 1fr 3fr 1fr;
   grid-template-areas:
-          ". opponent2 ."
+          "opponent2 opponent2 opponent2"
           "opponent1 trick opponent3"
-          ". player .";
+          "player player player";
   justify-items: stretch;
   justify-content: stretch;
 
@@ -18,7 +18,7 @@
   &__player-cards {
     display: grid;
     grid-auto-flow: column;
-    grid-gap: 10px;
+    grid-gap: 1.5rem;
     justify-content: center;
   }
 
@@ -38,18 +38,8 @@
     }
 
     &--1, &--3 {
-      .round__opponent-hand {
-        transform-origin: center;
-        transform: translate(-50%, -50%) rotate(90deg) ;
-      }
+      align-self: center;
     }
-  }
-
-  &__opponent-hand {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
   }
 
   &__trick {

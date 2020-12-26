@@ -73,7 +73,9 @@ export class App extends Component<AppProps, AppState> {
         }
 
         registerForGame(this.state.gameId, this.state.playerName)
-            .then(() => this.setState({phase: AppPhase.Game}))
+            .then(() => {
+                this.setState({phase: AppPhase.Game});
+            })
             .catch(console.error)
     }
 

@@ -1,0 +1,17 @@
+.main-menu {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 20px;
+
+  &__button {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    justify-self: center;
+    padding: 8px 20px;
+    background: lightblue;
+    border: 1px solid darken(lightblue, 30%);
+    border-radius: 8px;
+  }
+}

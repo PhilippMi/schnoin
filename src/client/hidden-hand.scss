@@ -1,5 +1,17 @@
 .hidden-hand {
   display: grid;
   grid-auto-flow: column;
-  grid-gap: 10px;
+  grid-gap: 1rem;
+
+  &--rotated {
+    grid-auto-flow: row;
+  }
+
+  &__card:not(:first-child) {
+    margin-left: -5rem;
+  }
+
+  &--rotated &__card:not(:first-child) {
+    margin: -5rem 0 0;
+  }
 }

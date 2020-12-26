@@ -1,12 +1,26 @@
+$cardRadio: 200 / 130;
+$width: 10rem;
 
 @mixin cardSize {
-  width: 8rem;
-  border-radius: 12px;
+  width: $width;
+  border-radius: 1rem;
 
   &::after {
     content: '';
     display: block;
     width: 100%;
-    padding-bottom: (200 / 130) * 100%;
+    padding-bottom: ($cardRadio) * 100%;
+  }
+}
+
+@mixin rotatedCardSize {
+  width: $width * $cardRadio;
+  border-radius: 1rem;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 100%;
+    padding-bottom: (1 / $cardRadio) * 100%;
   }
 }
