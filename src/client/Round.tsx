@@ -1,5 +1,5 @@
 import "./round.scss"
-import {PlayerGameState} from "../shared/PlayerGameSate";
+import {PlayerGameState} from "../shared/PlayerGameState";
 import React from "react";
 import {CardView} from "./CardView";
 import {Trick} from "./Trick";

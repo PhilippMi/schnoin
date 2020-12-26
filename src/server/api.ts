@@ -1,11 +1,11 @@
 import {NextFunction, Request, Response, Router} from 'express';
-import {Opponent, PlayerGameState} from "../shared/PlayerGameSate";
+import {Opponent, PlayerGameState} from "../shared/PlayerGameState";
 import {getGame} from "./GamesRepository";
 import {Card} from "../shared/Card";
 import {playCard} from "./GameLogic";
 import {UserError} from "./UserError";
 import {GameModel, Player} from "./GameModel";
-import {registerPlayer, startGame} from "./GameManagement";
+import {markPlayerReady, registerPlayer} from "./GameManagement";
 import {getEventsForGame} from "./eventStore";
 import {Event} from "../shared/Event";
 
@@ -13,14 +13,14 @@ export const apiRouter = Router();
 
 apiRouter.put('/game/:gameId/register/', (req, res) => {
     const game = getGame(req.params.gameId)
-    registerPlayer(game, req.body.token, req.body.name);
-    res.status(201).send();
+    registerPlayer(game, req.body.token, req.body.name)
+    res.status(201).send()
 })
 
-apiRouter.post('/game/:gameId/start/', (req, res) => {
+apiRouter.post('/game/:gameId/ready/', (req, res) => {
     const game = getGame(req.params.gameId)
-    startGame(game);
-    res.status(201).send();
+    markPlayerReady(game, req.body.token)
+    res.status(200).send()
 })
 
 apiRouter.get('/game/:gameId/', (req, res) => {
@@ -56,11 +56,13 @@ function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
     const lastEvent: Event | undefined = events[events.length - 1]
     return {
         id: game.id,
+        gamePhase: game.phase,
         player: {
             id: player.id,
             name: player.name,
             cards: player.cards,
-            tricksWon: player.tricksWon
+            tricksWon: player.tricksWon,
+            ready: player.ready
         },
         opponents: opponents.map(mapOpponent),
         trick: game.trick,
@@ -73,14 +75,15 @@ function mapOpponent(opponent: Player): Opponent {
         id: opponent.id,
         name: opponent.name,
         nCards: opponent.cards.length,
-        tricksWon: opponent.tricksWon
+        tricksWon: opponent.tricksWon,
+        ready: opponent.ready
     }
 }
 
 apiRouter.post('/game/:id/trick', (req, res) => {
     const game = getGame(req.params.id)
-    const card: Card = { suit: req.body.suit, rank: req.body.rank};
-    playCard(game, game.players[0].id, card)
+    const card: Card = req.body.card;
+    playCard(game, req.body.token, card)
     res.send('ok')
 })
 

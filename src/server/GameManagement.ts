@@ -1,19 +1,24 @@
-import {GameModel, GamePhase, Player} from "./GameModel";
+import {GameModel, Player} from "./GameModel";
 import {v4 as uuid} from "uuid";
 import {Suit} from "../shared/Card";
 import {UserError} from "./UserError";
 import {AIPlayer} from "./ai/AIPlayer";
 import {eventBus} from "./eventBus";
 import {EventType} from "../shared/Event";
+import {GamePhase} from "../shared/PlayerGameState";
 
-const maxPlayers = 4;
+export const maxPlayers = 4;
 
 export function registerPlayer(game: GameModel, token: string, name: string) {
+    if(game.phase !== GamePhase.Created) {
+        throw new UserError('Game already started')
+    }
     if(game.players.length >= maxPlayers) {
         throw new UserError('Too many players')
     }
 
     const newPlayer: Player = {
+        ready: false,
         name,
         id: uuid(),
         token,
@@ -28,17 +33,28 @@ export function registerPlayer(game: GameModel, token: string, name: string) {
             id: newPlayer.id
         }
     })
-    return newPlayer;
+    return newPlayer
+}
+
+export function markPlayerReady(game: GameModel, playerToken: string) {
+    const player = game.players.find(p => p.token === playerToken)
+    if (!player) {
+        throw new UserError('Cannot find player');
+    }
+
+    player.ready = true
+
+    eventBus.trigger(game, {
+        eventType: EventType.PlayerReady,
+        payload: {
+            playerId: player.id
+        }
+    })
 }
 
 export function startGame(game: GameModel) {
     if(game.phase !== GamePhase.Created) {
-        throw new UserError('Game already started')
-    }
-
-    const nAIPlayers = maxPlayers - game.players.length
-    for(let i = 0; i < nAIPlayers; i++) {
-        new AIPlayer(game)
+        throw new Error('Game already started')
     }
 
     game.trumpSuit = Suit.Hearts

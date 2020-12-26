@@ -11,14 +11,14 @@ export class AIPlayer {
     private readonly player: Player
 
     constructor(private readonly game: GameModel) {
-        this.player = registerPlayer(game, uuid(), `AI ${playerIndex++}`)
         eventBus.register(game, EventType.CardPlayed, () => this.onUpdate())
         eventBus.register(game, EventType.NewTrick, () => this.onUpdate())
+        this.player = registerPlayer(game, uuid(), `AI ${playerIndex++}`)
     }
 
     onUpdate() {
         if (this.game.trick.currentPlayerId === this.player.id) {
-            playCard(this.game, this.player.id, this.randomCard())
+            playCard(this.game, this.player.token, this.randomCard())
         }
     }
 

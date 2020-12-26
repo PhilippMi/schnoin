@@ -1,5 +1,5 @@
 import './trick.scss';
-import {Player, Trick} from "../shared/PlayerGameSate";
+import {Player, Trick} from "../shared/PlayerGameState";
 import React from "react";
 import {CardView} from "./CardView";
 import {Card} from "../shared/Card";

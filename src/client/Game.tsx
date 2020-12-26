@@ -1,17 +1,17 @@
 import './game.scss';
 
 import React, {Component} from "react";
-import {PlayerGameState} from "../shared/PlayerGameSate";
+import {GamePhase, PlayerGameState} from "../shared/PlayerGameState";
 import {Round} from "./Round";
 import {Card} from "../shared/Card";
 import {Event} from "../shared/Event";
 import {fetchGameState, processEvent} from "./processEvent";
 import {AppPhase} from "./App";
+import {getPlayerToken} from "./getPlayerToken";
 
 export interface GameProps {
     id: string,
     token: string,
-    phase: AppPhase,
     onReady: () => void
 }
 
@@ -87,7 +87,10 @@ export class Game extends Component<GameProps, GameState> {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(card)
+            body: JSON.stringify({
+                token: getPlayerToken(),
+                card: card
+            })
         })
             .then(() => this.process())
             .catch(console.error)
@@ -97,10 +100,11 @@ export class Game extends Component<GameProps, GameState> {
         if (!this.state.state) {
             return null
         }
+        const isLobby = this.state.state.gamePhase === GamePhase.Created;
         return (
-            <div className={`game ${this.props.phase === AppPhase.Lobby ? 'game--lobby' : ''}`}>
+            <div className={`game ${isLobby ? 'game--lobby' : ''}`}>
                 <Round state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
-                {this.props.phase === AppPhase.Lobby &&
+                {isLobby &&
                     <div className="game__ready-button">
                         <button onClick={() => this.props.onReady()}>Ready</button>
                     </div>

@@ -1,5 +1,5 @@
-import {Opponent, Player, PlayerGameState} from "../shared/PlayerGameSate";
-import {CardPlayedEvent, Event, EventType, NewPlayerEvent, NewTrickEvent, TrickEndEvent} from "../shared/Event";
+import {Opponent, Player, PlayerGameState} from "../shared/PlayerGameState";
+import {CardPlayedEvent, Event, EventType, NewPlayerEvent, NewTrickEvent, PlayerReadyEvent, TrickEndEvent} from "../shared/Event";
 import {isSameCard} from "../shared/cardUtils";
 import {getPlayerToken} from "./getPlayerToken";
 
@@ -7,6 +7,9 @@ export async function processEvent(state: PlayerGameState, event: Event) {
     switch (event.eventType) {
         case EventType.NewPlayer:
             newPlayer(state, event)
+            break
+        case EventType.PlayerReady:
+            playerReady(state, event)
             break
         case EventType.NewRound:
             await newRound(state)
@@ -37,8 +40,14 @@ function newPlayer(state: PlayerGameState, event: NewPlayerEvent) {
         id: event.payload.id,
         name: event.payload.name,
         tricksWon: 0,
-        nCards: 0
+        nCards: 0,
+        ready: false
     })
+}
+
+function playerReady(state: PlayerGameState, event: PlayerReadyEvent) {
+    const player = getPlayerById(state, event.payload.playerId);
+    player.ready = true;
 }
 
 function cardPlayed(state: PlayerGameState, event: CardPlayedEvent) {

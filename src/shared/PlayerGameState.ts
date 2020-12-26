@@ -13,6 +13,7 @@ export interface Player {
     id: string
     cards: Card[]
     tricksWon: number
+    ready: boolean
 }
 
 export interface Opponent {
@@ -20,9 +21,17 @@ export interface Opponent {
     id: string
     nCards: number
     tricksWon: number
+    ready: boolean
+}
+
+export enum GamePhase {
+    Created,
+    Started,
+    Finished
 }
 
 export interface PlayerGameState {
+    gamePhase: GamePhase
     id: string
     player: Player
     opponents: Opponent[]

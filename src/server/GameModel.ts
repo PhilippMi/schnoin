@@ -1,12 +1,6 @@
 import {Deck} from "./Deck";
 import {Card, Suit} from "../shared/Card";
-import {Trick} from "../shared/PlayerGameSate";
-
-export enum GamePhase {
-    Created,
-    Started,
-    Finished
-}
+import {Trick, GamePhase} from "../shared/PlayerGameState";
 
 export interface Player {
     id: string
@@ -14,6 +8,7 @@ export interface Player {
     token: string
     cards: Card[]
     tricksWon: number
+    ready: boolean;
 }
 
 export interface GameModel {

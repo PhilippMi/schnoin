@@ -6,7 +6,6 @@ import {getPlayerToken} from "./getPlayerToken";
 
 export enum AppPhase {
     Menu,
-    Lobby,
     Game
 }
 
@@ -47,7 +46,6 @@ export class App extends Component<AppProps, AppState> {
             return <Game
                 id={this.state.gameId}
                 token={getPlayerToken()}
-                phase={this.state.phase}
                 onReady={() => this.ready()}
             />
         }
@@ -72,13 +70,12 @@ export class App extends Component<AppProps, AppState> {
         }
 
         registerForGame(this.state.gameId, this.state.playerName)
-            .then(() => this.setState({phase: AppPhase.Lobby}))
+            .then(() => this.setState({phase: AppPhase.Game}))
             .catch(console.error)
     }
 
     private ready() {
-        startGame(this.state.gameId)
-            .then(() => this.setState({phase: AppPhase.Game}))
+        markAsReady(this.state.gameId)
             .catch(console.error)
     }
 }
@@ -96,7 +93,15 @@ function registerForGame(gameId: string, playerName: string) {
     })
 }
 
-function startGame(gameId: string) {
-    return fetch(`/api/game/${gameId}/start`, { method: "POST" })
+function markAsReady(gameId: string) {
+    return fetch(`/api/game/${gameId}/ready`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            token: getPlayerToken(),
+        })
+    })
 }
 

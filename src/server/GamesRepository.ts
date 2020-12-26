@@ -1,6 +1,8 @@
-import {GameModel, GamePhase} from "./GameModel";
+import {GameModel} from "./GameModel";
 import {Deck} from "./Deck";
 import {Suit} from "../shared/Card";
+import {GamePhase} from "../shared/PlayerGameState";
+import {startGameMaster} from "./GameMaster";
 
 const games: GameModel[] = [];
 
@@ -11,6 +13,7 @@ export function getGame(id: string): GameModel {
             games.splice(5)
         }
         game = createGame(id)
+        startGameMaster(game)
         games.push(game)
     }
     return game
