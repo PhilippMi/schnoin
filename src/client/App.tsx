@@ -14,8 +14,9 @@ interface AppProps {
 
 interface AppState {
     phase: AppPhase
-    gameId: string,
+    gameId: string
     playerName: string
+    ready: boolean
 }
 
 export class App extends Component<AppProps, AppState> {
@@ -25,7 +26,8 @@ export class App extends Component<AppProps, AppState> {
         this.state = {
             phase: AppPhase.Menu,
             gameId: url.searchParams.get('game-id') || uuid().substring(0, 13),
-            playerName: ''
+            playerName: '',
+            ready: false
         }
 
         this.onGameIdChanged = this.onGameIdChanged.bind(this)
@@ -46,6 +48,7 @@ export class App extends Component<AppProps, AppState> {
             return <Game
                 id={this.state.gameId}
                 token={getPlayerToken()}
+                ready={this.state.ready}
                 onReady={() => this.ready()}
             />
         }
@@ -76,6 +79,7 @@ export class App extends Component<AppProps, AppState> {
 
     private ready() {
         markAsReady(this.state.gameId)
+            .then(() => this.setState({ready: true}))
             .catch(console.error)
     }
 }

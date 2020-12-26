@@ -6,12 +6,12 @@ import {Round} from "./Round";
 import {Card} from "../shared/Card";
 import {Event} from "../shared/Event";
 import {fetchGameState, processEvent} from "./processEvent";
-import {AppPhase} from "./App";
 import {getPlayerToken} from "./getPlayerToken";
 
 export interface GameProps {
-    id: string,
-    token: string,
+    id: string
+    token: string
+    ready: boolean
     onReady: () => void
 }
 
@@ -104,7 +104,7 @@ export class Game extends Component<GameProps, GameState> {
         return (
             <div className={`game ${isLobby ? 'game--lobby' : ''}`}>
                 <Round state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
-                {isLobby &&
+                {isLobby && !this.props.ready &&
                     <div className="game__ready-button">
                         <button onClick={() => this.props.onReady()}>Ready</button>
                     </div>
