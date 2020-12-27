@@ -17,8 +17,7 @@ if (process.env.NODE_ENV === "production") {
     app.use(bundler.middleware())
 }
 
-// Listen on port 8080
-const port = process.env.PORT || 8000
+const port = process.env.PORT || 8080
 app.listen(port, () => {
     console.log("App is running on port " + port)
 })
