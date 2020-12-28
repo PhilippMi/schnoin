@@ -10,7 +10,7 @@ import {getPlayerById, getPlayerByToken} from "./gameUtils";
 export function playCard(game: GameModel, playerToken: string, card: Card) {
     const currentTrick = game.trick
     if (game.phase !== GamePhase.Started || !currentTrick) {
-        throw new UserError('game has not yet started')
+        throw new UserError('Game has not yet started or is already finished')
     }
 
     const player = getPlayerByToken(game, playerToken);
