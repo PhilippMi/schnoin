@@ -75,7 +75,6 @@ function getHighestCardPlayerId(currentTrick: Trick, trumpSuit: Suit): string {
     return getHighestCardValue(currentTrick.cards, currentTrick.cards[0].card.suit, trumpSuit)!.item.playerId
 }
 
-
 function getNextPlayer(currentPlayer: Player, game: GameModel): Player {
     const index = game.players.indexOf(currentPlayer);
     if (index === -1) {

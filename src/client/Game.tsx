@@ -21,7 +21,9 @@ interface GameState {
 }
 
 export class Game extends Component<GameProps, GameState> {
-    private interval: number | undefined
+    private updateInterval: number | undefined
+    private processInterval: number | undefined
+    private waiting: boolean = false
 
     constructor(props: GameProps) {
         super(props);
@@ -36,7 +38,8 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     componentWillUnmount() {
-        window.clearInterval(this.interval)
+        window.clearInterval(this.updateInterval)
+        window.clearInterval(this.processInterval)
     }
 
     private async fetchState() {
@@ -44,19 +47,26 @@ export class Game extends Component<GameProps, GameState> {
         this.setState({
             state
         }, () => {
-            this.interval = window.setInterval(() => this.process(), 1000)
+            this.updateInterval = window.setInterval(() => this.fetchUpdates(), 250)
+            this.processInterval = window.setInterval(() => this.process(), 30)
         })
     }
 
     private async process() {
-        await this.fetchUpdates();
+        if (this.waiting) {
+            return
+        }
         const nextEvent = this.state.eventsToProcess[0];
         if (nextEvent && this.state.state) {
             const eventsToProcess = this.state.eventsToProcess;
-            const updatedState = await updateState(this.state.state, nextEvent)
+            const {newState, delay} = await updateState(this.state.state, nextEvent)
+            if (delay > 0) {
+                this.waiting = true
+                setTimeout(() => this.waiting = false, delay)
+            }
             this.setState({
                 eventsToProcess: eventsToProcess.slice(1),
-                state: updatedState
+                state: newState
             })
         }
     }
@@ -115,8 +125,8 @@ export class Game extends Component<GameProps, GameState> {
 }
 
 
-async function updateState(state: PlayerGameState, event: Event): Promise<PlayerGameState> {
+async function updateState(state: PlayerGameState, event: Event): Promise<{newState: PlayerGameState, delay: number}> {
     const newState = JSON.parse(JSON.stringify(state))
-    await processEvent(newState, event)
-    return newState
+    const delay = await processEvent(newState, event)
+    return {newState, delay}
 }

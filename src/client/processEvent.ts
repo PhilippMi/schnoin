@@ -4,27 +4,31 @@ import {isSameCard} from "../shared/cardUtils";
 import {getPlayerToken} from "./getPlayerToken";
 import {getOpponentIndexForPlayer} from "../shared/playerUtils";
 
-export async function processEvent(state: PlayerGameState, event: Event) {
+export async function processEvent(state: PlayerGameState, event: Event): Promise<number> {
     switch (event.eventType) {
         case EventType.NewPlayer:
             newPlayer(state, event)
-            break
+            return 0
         case EventType.PlayerReady:
             playerReady(state, event)
-            break
+            return 0
         case EventType.NewRound:
             await newRound(state)
-            break
+            return 0
         case EventType.CardPlayed:
             cardPlayed(state, event)
-            break
+            if (state.trick.cards.length === state.opponents.length + 1) {
+                return 1000
+            }
+            return 500
         case EventType.TrickEnd:
             trickEnd(state, event)
-            break
+            return 500
         case EventType.NewTrick:
             newTrick(state, event)
-            break
+            return 0
     }
+    return 0
 }
 
 function isOpponent(player: User | Opponent): player is Opponent {
