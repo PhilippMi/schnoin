@@ -22,7 +22,7 @@ export function getCardsAllowedToBePlayed(cards: Card[], currentTrick: Trick, tr
 
     const highestTrickValue = getHighestCardValue(currentTrick.cards, initialSuit, trumpSuit)?.value || -1
 
-    const cardsWithHigherValue = cards.filter(c => getCardValue(c, initialSuit, trumpSuit) > highestTrickValue)
+    const cardsWithHigherValue = cardWithRightSuit.filter(c => getCardValue(c, initialSuit, trumpSuit) > highestTrickValue)
 
     if (cardsWithHigherValue.length > 0) {
         return cardsWithHigherValue
