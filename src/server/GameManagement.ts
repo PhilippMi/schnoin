@@ -8,11 +8,15 @@ import {GamePhase} from "../shared/PlayerGameState";
 import {maxPlayers} from "../shared/constants";
 
 export function registerPlayer(game: GameModel, token: string, name: string) {
-    if(game.phase !== GamePhase.Created) {
+    if (game.phase !== GamePhase.Created) {
         throw new UserError('Game already started')
     }
-    if(game.players.length >= maxPlayers) {
+    if (game.players.length >= maxPlayers) {
         throw new UserError('Too many players')
+    }
+
+    if (game.players.some(p => p.token === token)) {
+        throw new UserError('Player is already registered')
     }
 
     const newPlayer: Player = {
