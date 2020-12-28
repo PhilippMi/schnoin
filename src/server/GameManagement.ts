@@ -15,6 +15,10 @@ export function registerPlayer(game: GameModel, token: string, name: string) {
         throw new UserError('Too many players')
     }
 
+    if (!token) {
+        throw new UserError('Player does not have a token')
+    }
+
     if (game.players.some(p => p.token === token)) {
         throw new UserError('Player is already registered')
     }
