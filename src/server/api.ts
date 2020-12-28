@@ -2,7 +2,7 @@ import {NextFunction, Request, Response, Router} from 'express';
 import {Opponent, PlayerGameState} from "../shared/PlayerGameState";
 import {getGame} from "./GamesRepository";
 import {Card} from "../shared/Card";
-import {playCard} from "./GameLogic";
+import {playCard} from "./logic/playCard";
 import {UserError} from "./UserError";
 import {GameModel, Player} from "./GameModel";
 import {markPlayerReady, registerPlayer} from "./GameManagement";

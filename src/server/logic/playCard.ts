@@ -1,11 +1,13 @@
-import {GameModel, Player} from "./GameModel"
-import {Card, Rank, Suit} from "../shared/Card"
-import {UserError} from "./UserError"
-import {GamePhase, Trick} from "../shared/PlayerGameState";
-import {eventBus} from "./eventBus";
-import {EventType} from "../shared/Event";
-import {isSameCard, isWeli} from "../shared/cardUtils";
-import {getPlayerById, getPlayerByToken} from "./gameUtils";
+import {GameModel, Player} from "../GameModel"
+import {Card, Suit} from "../../shared/Card"
+import {UserError} from "../UserError"
+import {GamePhase, Trick} from "../../shared/PlayerGameState";
+import {eventBus} from "../eventBus";
+import {EventType} from "../../shared/Event";
+import {isSameCard} from "../../shared/cardUtils";
+import {getPlayerById, getPlayerByToken} from "../gameUtils";
+import {getHighestCardValue} from "./cardValues";
+import {getCardsAllowedToBePlayed} from "./cardsAllowedToPlay";
 
 export function playCard(game: GameModel, playerToken: string, card: Card) {
     const currentTrick = game.trick
@@ -49,34 +51,6 @@ function ensureCardAllowed(card: Card, player: Player, game: GameModel, currentT
     }
 }
 
-export function getCardsAllowedToBePlayed(cards: Card[], currentTrick: Trick, trumpSuit: Suit) {
-    if (currentTrick.cards.length === 0) {
-        return cards
-    }
-
-    const initialSuit: Suit = currentTrick.cards[0].card.suit
-
-    let suitToPlay: Suit | undefined
-
-    if (cards.some(c => c.suit === initialSuit && !isWeli(c))) {
-        suitToPlay = initialSuit
-    } else if(cards.some(c => c.suit === trumpSuit || isWeli(c))) {
-        suitToPlay = trumpSuit
-    }
-
-    const cardWithRightSuit = suitToPlay ? cards.filter(c => c.suit === suitToPlay) : cards
-
-    const highestTrickValue = getHighestCardValue(currentTrick.cards, initialSuit, trumpSuit)?.value || -1
-
-    const cardsWithHigherValue = cards.filter(c => getCardValue(c, initialSuit, trumpSuit) > highestTrickValue)
-
-    if (cardsWithHigherValue.length > 0) {
-        return cardsWithHigherValue
-    }
-
-    return cardWithRightSuit
-}
-
 function finishTrick(game: GameModel) {
     const currentTrick = game.trick
     const winningPlayerId = getHighestCardPlayerId(currentTrick, game.trumpSuit)
@@ -95,27 +69,6 @@ function getHighestCardPlayerId(currentTrick: Trick, trumpSuit: Suit): string {
     return getHighestCardValue(currentTrick.cards, currentTrick.cards[0].card.suit, trumpSuit)!.item.playerId
 }
 
-function getHighestCardValue<T extends {card: Card}>(cardContainers: T[], initialSuit: Suit, trumpSuit: Suit): {value: number, item: T} | null {
-    return cardContainers.map(c => ({
-        value: getCardValue(c.card, initialSuit, trumpSuit),
-        item: c as T
-    })).sort((a, b) => b.value - a.value)[0] || null;
-}
-
-
-function getCardValue(card: Card, initialSuit: Suit, trumpSuit: Suit): number {
-    const trumpOffset: number = Rank.Deuce + 1;
-    if (isWeli(card)) {
-        return trumpOffset + Rank.Deuce - 0.5
-    }
-
-    if (card.suit === trumpSuit) {
-        return card.rank + trumpOffset
-    } else if (card.suit === initialSuit) {
-        return card.rank
-    }
-    return 0
-}
 
 function getNextPlayer(currentPlayer: Player, game: GameModel): Player {
     const index = game.players.indexOf(currentPlayer);

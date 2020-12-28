@@ -2,8 +2,9 @@ import {GameModel, Player} from "../GameModel";
 import {eventBus} from "../eventBus";
 import {registerPlayer} from "../GameManagement";
 import {v4 as uuid} from 'uuid';
-import {getCardsAllowedToBePlayed, playCard} from "../GameLogic";
+import {playCard} from "../logic/playCard";
 import {EventType} from "../../shared/Event";
+import {getCardsAllowedToBePlayed} from "../logic/cardsAllowedToPlay";
 
 let playerIndex = 1;
 
