@@ -58,11 +58,17 @@ function finishTrick(game: GameModel) {
     getPlayerById(game, winningPlayerId).tricksWon++
     eventBus.trigger(game, { eventType: EventType.TrickEnd, payload: { winningPlayerId }})
 
-    game.trick = {
-        currentPlayerId: winningPlayerId,
-        cards: []
+    if (game.players[0].cards.length > 0) {
+        game.trick = {
+            currentPlayerId: winningPlayerId,
+            cards: []
+        }
+        eventBus.trigger(game, {eventType: EventType.NewTrick, payload: {startPlayerId: winningPlayerId}})
+    } else {
+        game.trick = {currentPlayerId: null, cards: []}
+        game.phase = GamePhase.Finished
+        eventBus.trigger(game, {eventType: EventType.RoundEnd, payload: {}})
     }
-    eventBus.trigger(game, { eventType: EventType.NewTrick, payload: { startPlayerId: winningPlayerId }})
 }
 
 function getHighestCardPlayerId(currentTrick: Trick, trumpSuit: Suit): string {

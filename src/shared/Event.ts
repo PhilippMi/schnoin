@@ -7,7 +7,8 @@ export enum EventType {
     TrickEnd = 'trickend',
     NewPlayer = 'newplayer',
     PlayerReady = 'playerready',
-    NewRound= 'newround',
+    NewRound = 'newround',
+    RoundEnd = 'roundend'
 }
 
 
@@ -45,6 +46,10 @@ export interface NewRoundEvent extends BaseEvent {
     }
 }
 
+export interface RoundEndEvent extends BaseEvent {
+    eventType: EventType.RoundEnd
+    payload: {}
+}
 
 export interface CardPlayedEvent extends BaseEvent {
     eventType: EventType.CardPlayed
@@ -69,7 +74,7 @@ export interface TrickEndEvent extends BaseEvent {
     }
 }
 
-export type Event = CardPlayedEvent | NewTrickEvent | TrickEndEvent | NewPlayerEvent | NewRoundEvent | PlayerReadyEvent
+export type Event = CardPlayedEvent | NewTrickEvent | TrickEndEvent | NewPlayerEvent | NewRoundEvent | PlayerReadyEvent | RoundEndEvent
 
 export interface EventMap {
     [EventType.NewTrick]: NewTrickEvent
@@ -78,4 +83,5 @@ export interface EventMap {
     [EventType.NewPlayer]: NewPlayerEvent
     [EventType.NewRound]: NewRoundEvent
     [EventType.PlayerReady]: PlayerReadyEvent
+    [EventType.RoundEnd]: RoundEndEvent
 }
