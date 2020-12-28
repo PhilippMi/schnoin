@@ -18,6 +18,8 @@ interface AppState {
     ready: boolean
 }
 
+const playerNameKey = 'schnoin.playerName';
+
 export class App extends Component<AppProps, AppState> {
     constructor(props: GameProps) {
         super(props)
@@ -25,13 +27,14 @@ export class App extends Component<AppProps, AppState> {
         this.state = {
             phase: AppPhase.Menu,
             gameId: url.searchParams.get('game-id') || uuid().substring(0, 13),
-            playerName: '',
+            playerName: localStorage.getItem(playerNameKey) || '',
             ready: false
         }
 
         this.onGameIdChanged = this.onGameIdChanged.bind(this)
         this.onPlayerNameChanged = this.onPlayerNameChanged.bind(this)
         this.joinGame = this.joinGame.bind(this)
+        this.refreshGameId = this.refreshGameId.bind(this)
     }
 
     render() {
@@ -42,6 +45,7 @@ export class App extends Component<AppProps, AppState> {
                 onGameIdChanged={this.onGameIdChanged}
                 onPlayerNameChanged={this.onPlayerNameChanged}
                 onJoin={this.joinGame}
+                onRefreshGameId={this.refreshGameId}
             />
         } else {
             return <Game
@@ -60,6 +64,12 @@ export class App extends Component<AppProps, AppState> {
         this.setState({playerName})
     }
 
+    private refreshGameId() {
+        this.setState({
+            gameId: uuid().substring(0, 13)
+        })
+    }
+
     private joinGame() {
         if (this.state.playerName.length === 0) {
             console.error('invalid player name')
@@ -70,8 +80,17 @@ export class App extends Component<AppProps, AppState> {
             return
         }
 
+        try {
+            localStorage.setItem(playerNameKey, this.state.playerName)
+        } catch(e) {
+            console.warn(e)
+        }
+
         registerForGame(this.state.gameId, this.state.playerName)
             .then(() => {
+                const url = new URL(window.location.href)
+                url.searchParams.set('game-id', this.state.gameId)
+                history.replaceState({}, '', url.toString())
                 this.setState({phase: AppPhase.Game});
             })
             .catch(console.error)

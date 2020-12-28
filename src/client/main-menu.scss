@@ -14,4 +14,21 @@
     border: 1px solid darken(lightblue, 30%);
     border-radius: 8px;
   }
+
+  &__input {
+    display: flex;
+  }
+
+  &__input-field {
+    flex: 1 1 auto;
+  }
+
+  &__input-button {
+    justify-self: center;
+    margin-left: 8px;
+    padding: 0 16px;
+    background: lightblue;
+    border: 1px solid darken(lightblue, 30%);
+    border-radius: 6px;
+  }
 }
