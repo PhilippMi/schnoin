@@ -14,7 +14,6 @@ app.use((req, res, next) => {
     if (!req.cookies['schnoin.token']) {
         res.cookie('schnoin.token', uuid(), {
             path: '/',
-            secure: true,
             httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000
         })
