@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Game, GameProps} from "./Game";
 import {v4 as uuid} from 'uuid';
 import {MainMenu} from "./MainMenu";
-import {getPlayerToken} from "./getPlayerToken";
 
 export enum AppPhase {
     Menu,
@@ -47,7 +46,6 @@ export class App extends Component<AppProps, AppState> {
         } else {
             return <Game
                 id={this.state.gameId}
-                token={getPlayerToken()}
                 ready={this.state.ready}
                 onReady={() => this.ready()}
             />
@@ -93,7 +91,6 @@ function registerForGame(gameId: string, playerName: string) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            token: getPlayerToken(),
             name: playerName
         })
     })
@@ -104,10 +101,7 @@ function markAsReady(gameId: string) {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            token: getPlayerToken(),
-        })
+        }
     })
 }
 

@@ -6,11 +6,9 @@ import {Round} from "./Round";
 import {Card} from "../shared/Card";
 import {Event} from "../shared/Event";
 import {fetchGameState, processEvent} from "./processEvent";
-import {getPlayerToken} from "./getPlayerToken";
 
 export interface GameProps {
     id: string
-    token: string
     ready: boolean
     onReady: () => void
 }
@@ -76,7 +74,7 @@ export class Game extends Component<GameProps, GameState> {
             return
         }
 
-        const endpoint = `/api/game/${this.props.id}/events/${this.state.state.lastEventId}?token=${this.props.token}`
+        const endpoint = `/api/game/${this.props.id}/events/${this.state.state.lastEventId}`
         const response = await fetch(endpoint)
         const events: Event[] = await response.json()
         if (events.length > 0) {
@@ -98,7 +96,6 @@ export class Game extends Component<GameProps, GameState> {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                token: getPlayerToken(),
                 card: card
             })
         })

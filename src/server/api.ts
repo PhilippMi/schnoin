@@ -16,18 +16,18 @@ export const apiRouter = Router();
 
 apiRouter.put('/game/:gameId/register/', (req, res) => {
     const game = getGame(req.params.gameId)
-    registerPlayer(game, req.body.token, req.body.name)
+    registerPlayer(game, req.cookies['schnoin.token'], req.body.name)
     res.status(201).send()
 })
 
 apiRouter.post('/game/:gameId/ready/', (req, res) => {
     const game = getGame(req.params.gameId)
-    markPlayerReady(game, req.body.token)
+    markPlayerReady(game, req.cookies['schnoin.token'])
     res.status(200).send()
 })
 
 apiRouter.get('/game/:gameId/', (req, res) => {
-    const playerToken = req.query.token as string
+    const playerToken = req.cookies['schnoin.token'] as string
     const game = getGame(req.params.gameId)
     res.send(mapToGameState(game, playerToken))
 })
@@ -107,7 +107,7 @@ function getOpponentsForPlayer(game: GameModel, player: Player) {
 apiRouter.post('/game/:id/trick', (req, res) => {
     const game = getGame(req.params.id)
     const card: Card = req.body.card;
-    playCard(game, req.body.token, card)
+    playCard(game, req.cookies['schnoin.token'], card)
     res.send('ok')
 })
 

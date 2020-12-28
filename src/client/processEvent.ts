@@ -1,7 +1,6 @@
 import {Opponent, User, PlayerGameState} from "../shared/PlayerGameState";
 import {CardPlayedEvent, Event, EventType, NewPlayerEvent, NewTrickEvent, PlayerReadyEvent, TrickEndEvent} from "../shared/Event";
 import {isSameCard} from "../shared/cardUtils";
-import {getPlayerToken} from "./getPlayerToken";
 import {getOpponentIndexForPlayer} from "../shared/playerUtils";
 
 export async function processEvent(state: PlayerGameState, event: Event): Promise<number> {
@@ -91,7 +90,7 @@ function getPlayerById(state: PlayerGameState, id: string): User | Opponent {
 }
 
 export async function fetchGameState(gameId: string): Promise<PlayerGameState> {
-    const endpoint = `/api/game/${gameId}?token=${getPlayerToken()}`;
+    const endpoint = `/api/game/${gameId}`;
 
     const response = await fetch(endpoint)
     return response.json()
