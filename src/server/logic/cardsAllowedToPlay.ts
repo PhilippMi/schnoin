@@ -8,17 +8,20 @@ export function getCardsAllowedToBePlayed(cards: Card[], currentTrick: Trick, tr
         return cards
     }
 
-    const initialSuit: Suit = currentTrick.cards[0].card.suit
+    const initialTrickCard = currentTrick.cards[0].card;
+    const initialSuit: Suit = isWeli(initialTrickCard) ? trumpSuit : initialTrickCard.suit
 
-    let suitToPlay: Suit | undefined
+    const filterInitialSuit = filterSuit(initialSuit, trumpSuit);
+    let cardWithRightSuit = cards.filter(filterInitialSuit)
 
-    if (cards.some(c => c.suit === initialSuit && !isWeli(c))) {
-        suitToPlay = initialSuit
-    } else if (cards.some(c => c.suit === trumpSuit || isWeli(c))) {
-        suitToPlay = trumpSuit
+    if (cardWithRightSuit.length === 0) {
+        const filterTrumpSuit = filterSuit(trumpSuit, trumpSuit)
+        cardWithRightSuit = cards.filter(filterTrumpSuit)
+
+        if (cardWithRightSuit.length === 0) {
+            cardWithRightSuit = cards
+        }
     }
-
-    const cardWithRightSuit = suitToPlay ? cards.filter(c => c.suit === suitToPlay) : cards
 
     const highestTrickValue = getHighestCardValue(currentTrick.cards, initialSuit, trumpSuit)?.value || -1
 
@@ -29,4 +32,13 @@ export function getCardsAllowedToBePlayed(cards: Card[], currentTrick: Trick, tr
     }
 
     return cardWithRightSuit
+}
+
+function filterSuit(suit: Suit, trumpSuit: Suit) {
+    return (card: Card) => {
+        if (isWeli(card)) {
+            return suit === trumpSuit
+        }
+        return card.suit === suit
+    }
 }
