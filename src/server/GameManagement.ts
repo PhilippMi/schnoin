@@ -64,9 +64,11 @@ export function startGame(game: GameModel) {
         throw new Error('Game already started')
     }
 
+    const suits = [Suit.Leaves, Suit.Acorns, Suit.Hearts, Suit.Bells];
+
     game.round = {
         phase: RoundPhase.Betting,
-        trumpSuit: Suit.Hearts,
+        trumpSuit: suits[Math.floor(Math.random() * suits.length)],
         bets: []
     }
     let startPlayerId = game.players[0].id;

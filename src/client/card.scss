@@ -6,5 +6,4 @@ $image-path: "../../assets/cards.jpg";
   @include mixins.cardSize();
   background-image: url($image-path);
   background-size: 900% 400%;
-
 }

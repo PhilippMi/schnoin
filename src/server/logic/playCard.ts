@@ -49,7 +49,7 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
 }
 
 function ensureCardAllowed(card: Card, player: Player, round: Round, currentTrick: Trick) {
-    assert(round.trumpSuit)
+    assert(round.trumpSuit !== undefined)
     const allowedCards = getCardsAllowedToBePlayed(player.cards, currentTrick, round.trumpSuit);
 
     if (!allowedCards.find(c => isSameCard(c, card))) {
@@ -60,7 +60,7 @@ function ensureCardAllowed(card: Card, player: Player, round: Round, currentTric
 function finishTrick(game: GameModel) {
     assert(game.round)
     assert(game.round.trick)
-    assert(game.round.trumpSuit)
+    assert(game.round.trumpSuit !== undefined)
     const currentTrick = game.round.trick
     const winningPlayerId = getHighestCardPlayerId(currentTrick, game.round.trumpSuit)
 

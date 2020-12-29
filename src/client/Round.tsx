@@ -6,6 +6,7 @@ import {Trick} from "./Trick";
 import {Card} from "../shared/Card";
 import {HiddenHand} from "./HiddenHand";
 import {PlayerView} from "./PlayerView";
+import {TrumpSuitIcon} from "./TrumpSuitIcon";
 
 interface RoundProps {
     state: PlayerGameState,
@@ -28,7 +29,11 @@ export function Round(props: RoundProps) {
         </div>
     )
     const playerIds = [props.state.player.id, ...props.state.opponents.map(o => o?.id)]
+    const trumpSuit = props.state.round?.trumpSuit;
     return <div className="round">
+        {typeof trumpSuit === 'number' && <div className="round__trump-suit">
+            <TrumpSuitIcon trumpSuit={trumpSuit} />
+        </div>}
         <div className="round__player">
             <PlayerView tricksWon={props.state.player.tricksWon} name={props.state.player.name}>
                 <div className="round__player-cards">

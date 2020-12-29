@@ -26,7 +26,7 @@ export class AIPlayer {
 
     private randomCard() {
         assert(this.game.round)
-        assert(this.game.round.trumpSuit)
+        assert(this.game.round.trumpSuit !== undefined)
         assert(this.game.round.trick)
         const allowedCards = getCardsAllowedToBePlayed(this.player.cards, this.game.round.trick, this.game.round.trumpSuit)
         return allowedCards[Math.floor(Math.random() * allowedCards.length)]

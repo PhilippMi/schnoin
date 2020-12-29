@@ -5,11 +5,15 @@
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
   grid-template-areas:
-          "opponent2 opponent2 opponent2"
+          "trumpSuit opponent2 -"
           "opponent1 trick opponent3"
           "player player player";
   justify-items: stretch;
   justify-content: stretch;
+
+  &__trump-suit {
+    padding: 2rem;
+  }
 
   &__player {
     grid-area: player;
