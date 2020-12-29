@@ -2,6 +2,7 @@ import {Opponent, User, PlayerGameState} from "../shared/PlayerGameState";
 import {CardPlayedEvent, Event, EventType, NewPlayerEvent, NewTrickEvent, PlayerReadyEvent, TrickEndEvent} from "../shared/Event";
 import {isSameCard} from "../shared/cardUtils";
 import {getOpponentIndexForPlayer} from "../shared/playerUtils";
+import {assert} from "./assert";
 
 export async function processEvent(state: PlayerGameState, event: Event): Promise<number> {
     switch (event.eventType) {
@@ -16,7 +17,7 @@ export async function processEvent(state: PlayerGameState, event: Event): Promis
             return 0
         case EventType.CardPlayed:
             cardPlayed(state, event)
-            if (state.trick.cards.length === state.opponents.length + 1) {
+            if (state.round?.trick?.cards.length === state.opponents.length + 1) {
                 return 1000
             }
             return 500
@@ -57,6 +58,8 @@ function playerReady(state: PlayerGameState, event: PlayerReadyEvent) {
 }
 
 function cardPlayed(state: PlayerGameState, event: CardPlayedEvent) {
+    assert(state.round)
+    assert(state.round.trick)
     const {card, playerId, nextPlayerId} = event.payload
     const player = getPlayerById(state, playerId)
     if (isOpponent(player)) {
@@ -64,21 +67,24 @@ function cardPlayed(state: PlayerGameState, event: CardPlayedEvent) {
     } else {
         player.cards = player.cards.filter(c => !isSameCard(c, card))
     }
-    state.trick.cards.push({ card, playerId })
-    state.trick.currentPlayerId = nextPlayerId
+    state.round.trick.cards.push({ card, playerId })
+    state.round.trick.currentPlayerId = nextPlayerId
 }
 
 function newTrick(state: PlayerGameState, event: NewTrickEvent) {
+    assert(state.round)
     const {startPlayerId} = event.payload
-    state.trick = { currentPlayerId: startPlayerId, cards: []}
+    state.round.trick = { currentPlayerId: startPlayerId, cards: []}
 }
 
 function trickEnd(state: PlayerGameState, event: TrickEndEvent) {
+    assert(state.round)
+    assert(state.round.trick)
     const {winningPlayerId} = event.payload
     const winningPlayer = getPlayerById(state, winningPlayerId)
     winningPlayer.tricksWon++
-    state.trick.cards = []
-    state.trick.currentPlayerId = null
+    state.round.trick.cards = []
+    state.round.trick.currentPlayerId = null
 }
 
 function getPlayerById(state: PlayerGameState, id: string): User | Opponent {

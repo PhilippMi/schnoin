@@ -5,6 +5,7 @@ import {v4 as uuid} from 'uuid';
 import {playCard} from "../logic/playCard";
 import {EventType} from "../../shared/Event";
 import {getCardsAllowedToBePlayed} from "../logic/cardsAllowedToPlay";
+import assert from "assert";
 
 let playerIndex = 1;
 
@@ -18,13 +19,16 @@ export class AIPlayer {
     }
 
     onUpdate() {
-        if (this.game.trick.currentPlayerId === this.player.id) {
+        if (this.game.round?.trick?.currentPlayerId === this.player.id) {
             playCard(this.game, this.player.token, this.randomCard())
         }
     }
 
-    randomCard() {
-        const allowedCards = getCardsAllowedToBePlayed(this.player.cards, this.game.trick, this.game.trumpSuit)
+    private randomCard() {
+        assert(this.game.round)
+        assert(this.game.round.trumpSuit)
+        assert(this.game.round.trick)
+        const allowedCards = getCardsAllowedToBePlayed(this.player.cards, this.game.round.trick, this.game.round.trumpSuit)
         return allowedCards[Math.floor(Math.random() * allowedCards.length)]
     }
 

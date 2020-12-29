@@ -1,5 +1,5 @@
 import {playCard} from '../playCard';
-import {GamePhase, Trick} from '../../../shared/PlayerGameState';
+import {GamePhase, RoundPhase, Trick} from '../../../shared/PlayerGameState';
 import {Rank, Suit} from '../../../shared/Card';
 import {GameModel, Player} from "../../GameModel";
 
@@ -41,7 +41,10 @@ it('should not allow playing a card if is not the playing player\' turn', () => 
     const game: GameModel = {
         phase: GamePhase.Started,
         players: [playingPlayer, otherPlayer],
-        trick
+        round: {
+            phase: RoundPhase.Play,
+            trick
+        }
     } as GameModel
     expect(() => playCard(game, '123', {suit: Suit.Acorns, rank: Rank.Eight})).toThrowError('It is not player Player1\'s turn')
 })

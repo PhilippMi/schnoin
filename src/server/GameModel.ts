@@ -1,6 +1,6 @@
 import {Deck} from "./Deck";
-import {Card, Suit} from "../shared/Card";
-import {Trick, GamePhase} from "../shared/PlayerGameState";
+import {Card} from "../shared/Card";
+import {GamePhase, Round} from "../shared/PlayerGameState";
 
 export interface Player {
     id: string
@@ -8,14 +8,13 @@ export interface Player {
     token: string
     cards: Card[]
     tricksWon: number
-    ready: boolean;
+    ready: boolean
 }
 
 export interface GameModel {
     id: string
     deck: Deck
     players: Player[]
-    trumpSuit: Suit
-    trick: Trick;
+    round?: Round
     phase: GamePhase
 }

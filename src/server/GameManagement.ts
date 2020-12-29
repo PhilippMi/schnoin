@@ -1,11 +1,11 @@
 import {GameModel, Player} from "./GameModel";
 import {v4 as uuid} from "uuid";
-import {Suit} from "../shared/Card";
 import {UserError} from "./UserError";
 import {eventBus} from "./eventBus";
 import {EventType} from "../shared/Event";
-import {GamePhase} from "../shared/PlayerGameState";
+import {GamePhase, RoundPhase} from "../shared/PlayerGameState";
 import {maxPlayers} from "../shared/constants";
+import {Suit} from "../shared/Card";
 
 export function registerPlayer(game: GameModel, token: string, name: string) {
     if (game.phase !== GamePhase.Created) {
@@ -64,7 +64,11 @@ export function startGame(game: GameModel) {
         throw new Error('Game already started')
     }
 
-    game.trumpSuit = Suit.Hearts
+    game.round = {
+        phase: RoundPhase.Betting,
+        trumpSuit: Suit.Hearts,
+        bets: []
+    }
     let startPlayerId = game.players[0].id;
     game.players.forEach(p => Object.assign(p, {
         cards: game.deck.popCards(5),
@@ -74,7 +78,7 @@ export function startGame(game: GameModel) {
     eventBus.trigger(game, {
         eventType: EventType.NewRound,
         payload: {
-            trumpSuit: game.trumpSuit,
+            trumpSuit: game.round.trumpSuit,
             players: game.players.map(p => ({
                 id: p.id,
                 nCards: p.cards.length,
@@ -83,7 +87,8 @@ export function startGame(game: GameModel) {
         }
     })
 
-    game.trick = {
+    game.round.phase = RoundPhase.Play
+    game.round.trick = {
         currentPlayerId: startPlayerId,
         cards: []
     }

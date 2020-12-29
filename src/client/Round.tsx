@@ -37,9 +37,9 @@ export function Round(props: RoundProps) {
             </PlayerView>
         </div>
         {opponents}
-        <div className="round__trick">
-            <Trick trick={props.state.trick} playerIds={playerIds} />
-        </div>
+        {props.state.round?.trick && <div className="round__trick">
+            <Trick trick={props.state.round?.trick} playerIds={playerIds} />
+        </div>}
     </div>
 
     function selectCard(card: Card) {

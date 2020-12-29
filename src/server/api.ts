@@ -67,7 +67,7 @@ function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
             index: game.players.indexOf(player)
         },
         opponents: opponents,
-        trick: game.trick,
+        round: game.round,
         lastEventId: lastEvent?.id || null
     }
 }
@@ -111,7 +111,7 @@ apiRouter.post('/game/:id/trick', (req, res) => {
     res.send('ok')
 })
 
-apiRouter.use((err: Error, req: Request, res: Response, next: NextFunction)  => {
+apiRouter.use((err: Error, req: Request, res: Response)  => {
     console.error(err.stack)
     if (err instanceof UserError) {
         res.status(400).send('input error');

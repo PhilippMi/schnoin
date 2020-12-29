@@ -1,18 +1,23 @@
 import {GameModel, Player} from "../GameModel"
 import {Card, Suit} from "../../shared/Card"
 import {UserError} from "../UserError"
-import {GamePhase, Trick} from "../../shared/PlayerGameState";
+import {GamePhase, Round, RoundPhase, Trick} from "../../shared/PlayerGameState";
 import {eventBus} from "../eventBus";
 import {EventType} from "../../shared/Event";
 import {isSameCard} from "../../shared/cardUtils";
 import {getPlayerById, getPlayerByToken} from "../gameUtils";
 import {getHighestCardValue} from "./cardValues";
 import {getCardsAllowedToBePlayed} from "./cardsAllowedToPlay";
+import assert from "assert";
 
 export function playCard(game: GameModel, playerToken: string, card: Card) {
-    const currentTrick = game.trick
-    if (game.phase !== GamePhase.Started || !currentTrick) {
+    if (game.phase !== GamePhase.Started) {
         throw new UserError('Game has not yet started or is already finished')
+    }
+
+    const currentTrick = game.round?.trick
+    if (!game.round || game.round.phase !== RoundPhase.Play || !currentTrick) {
+        throw new UserError('Round has not yet started or is already finished')
     }
 
     const player = getPlayerByToken(game, playerToken);
@@ -21,7 +26,7 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
         throw new UserError(`It is not player ${player.name}'s turn`)
     }
 
-    ensureCardAllowed(card, player, game, currentTrick);
+    ensureCardAllowed(card, player, game.round, currentTrick);
 
     player.cards = player.cards.filter(c => !isSameCard(c, card))
     const newCardsInTrick = currentTrick.cards.concat([{
@@ -31,7 +36,7 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
     const wasLastPlayer = newCardsInTrick.length === game.players.length;
     const nextPlayer = getNextPlayer(player, game);
     const nextPlayerId = wasLastPlayer ? null : nextPlayer.id;
-    game.trick = {
+    game.round.trick = {
         currentPlayerId: nextPlayerId,
         cards: newCardsInTrick
     }
@@ -43,8 +48,9 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
     }
 }
 
-function ensureCardAllowed(card: Card, player: Player, game: GameModel, currentTrick: Trick) {
-    const allowedCards = getCardsAllowedToBePlayed(player.cards, currentTrick, game.trumpSuit);
+function ensureCardAllowed(card: Card, player: Player, round: Round, currentTrick: Trick) {
+    assert(round.trumpSuit)
+    const allowedCards = getCardsAllowedToBePlayed(player.cards, currentTrick, round.trumpSuit);
 
     if (!allowedCards.find(c => isSameCard(c, card))) {
         throw new UserError('Cannot play this card');
@@ -52,20 +58,23 @@ function ensureCardAllowed(card: Card, player: Player, game: GameModel, currentT
 }
 
 function finishTrick(game: GameModel) {
-    const currentTrick = game.trick
-    const winningPlayerId = getHighestCardPlayerId(currentTrick, game.trumpSuit)
+    assert(game.round)
+    assert(game.round.trick)
+    assert(game.round.trumpSuit)
+    const currentTrick = game.round.trick
+    const winningPlayerId = getHighestCardPlayerId(currentTrick, game.round.trumpSuit)
 
     getPlayerById(game, winningPlayerId).tricksWon++
     eventBus.trigger(game, { eventType: EventType.TrickEnd, payload: { winningPlayerId }})
 
     if (game.players[0].cards.length > 0) {
-        game.trick = {
+        game.round.trick = {
             currentPlayerId: winningPlayerId,
             cards: []
         }
         eventBus.trigger(game, {eventType: EventType.NewTrick, payload: {startPlayerId: winningPlayerId}})
     } else {
-        game.trick = {currentPlayerId: null, cards: []}
+        game.round.trick = undefined
         game.phase = GamePhase.Finished
         eventBus.trigger(game, {eventType: EventType.RoundEnd, payload: {}})
     }

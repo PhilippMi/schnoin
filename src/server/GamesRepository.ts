@@ -1,6 +1,5 @@
 import {GameModel} from "./GameModel";
 import {Deck} from "./Deck";
-import {Suit} from "../shared/Card";
 import {GamePhase} from "../shared/PlayerGameState";
 import {startGameMaster} from "./GameMaster";
 
@@ -25,8 +24,6 @@ function createGame(id: string): GameModel {
         id,
         phase: GamePhase.Created,
         deck,
-        players: [],
-        trumpSuit: Suit.Hearts,
-        trick: {currentPlayerId: null, cards: []},
+        players: []
     }
 }
