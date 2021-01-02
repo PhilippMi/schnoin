@@ -23,7 +23,7 @@ export async function processEvent(state: PlayerGameState, event: Event): Promis
             return 0
         case EventType.BetPlaced:
             await betPlaced(state, event)
-            return 0
+            return 500
         case EventType.BettingEnd:
             bettingEnd(state, event)
             return 0

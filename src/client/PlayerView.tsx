@@ -2,8 +2,8 @@ import './player.scss';
 import React, {PropsWithChildren} from "react";
 
 export interface PlayerViewProps {
-    tricksWon: number
-    name: string;
+    score: number | string
+    name: string
 }
 
 export function PlayerView(props: PropsWithChildren<PlayerViewProps>) {
@@ -12,6 +12,6 @@ export function PlayerView(props: PropsWithChildren<PlayerViewProps>) {
             {props.children}
         </div>
         <div className="player__name">{props.name}</div>
-        <div className="player__won-tricks">{props.tricksWon}</div>
+        <div className="player__score">{props.score}</div>
     </div>
 }
