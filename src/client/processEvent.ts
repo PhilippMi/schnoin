@@ -50,26 +50,9 @@ function isOpponent(player: User | Opponent): player is Opponent {
     return typeof (player as Opponent).nCards === 'number';
 }
 
-function placeBet(state: PlayerGameState) {
-    if (state.player.id === state.round?.currentPlayerId) {
-        fetch(`/api/game/${state.id}/bet`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                value: state.player.index === 0 ? 5 : null
-            })
-        })
-            .catch(console.error)
-    }
-}
-
 async function newRound(state: PlayerGameState) {
     const newState = await fetchGameState(state.id)
     Object.assign(state, newState)
-    // temporary
-    await placeBet(state)
 }
 
 function bettingEnd(state: PlayerGameState, event: BettingEndEvent) {
@@ -97,7 +80,6 @@ async function betPlaced(state: PlayerGameState, event: BetPlacedEvent) {
         playerId: event.payload.playerId
     })
     state.round.currentPlayerId = event.payload.nextPlayerId
-    await placeBet(state)
 }
 
 function playerReady(state: PlayerGameState, event: PlayerReadyEvent) {

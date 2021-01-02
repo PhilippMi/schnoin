@@ -1,11 +1,12 @@
 import './game.scss';
 
 import React, {Component} from "react";
-import {GamePhase, PlayerGameState} from "../shared/PlayerGameState";
+import {GamePhase, PlayerGameState, RoundPhase} from "../shared/PlayerGameState";
 import {Table} from "./Table";
 import {Card} from "../shared/Card";
 import {Event} from "../shared/Event";
 import {fetchGameState, processEvent} from "./processEvent";
+import {assert} from "./assert";
 
 export interface GameProps {
     id: string
@@ -103,6 +104,20 @@ export class Game extends Component<GameProps, GameState> {
             .catch(console.error)
     }
 
+    private placeBet(value: number | null) {
+        fetch(`/api/game/${this.props.id}/bet`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                value
+            })
+        })
+            .then(() => this.process())
+            .catch(console.error)
+    }
+
     render() {
         if (!this.state.state) {
             return null
@@ -111,21 +126,45 @@ export class Game extends Component<GameProps, GameState> {
         return (
             <div className={`game ${isLobby ? 'game--lobby' : ''}`}>
                 <Table state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
-                {this.renderActionOverlay(isLobby)}
+                {this.renderActionOverlay()}
             </div>
         )
     }
 
-    private renderActionOverlay(isLobby: boolean) {
-        const showOverlay = isLobby
+    private renderActionOverlay() {
+        const game = this.state.state;
+        const isLobby = game?.gamePhase === GamePhase.Created;
+        const awaitingBet = game?.round?.phase === RoundPhase.Betting && game.round.currentPlayerId === game.player.id;
+
+        const showOverlay = isLobby || awaitingBet
         if (!showOverlay) {
             return null
         }
 
+        let buttons: {label: string; onClick: () => void}[]
+        if (isLobby) {
+            buttons = [{
+                label: 'Ready',
+                onClick: () => this.props.onReady()
+            }]
+        } else if (awaitingBet) {
+            buttons = []
+            for(let i = 0; i <= 5; i++) {
+                buttons.push({
+                    label: i.toString(),
+                    onClick: () => this.placeBet(i === 0 ? null : i)
+                })
+            }
+        } else {
+            assert(false)
+        }
+
         return <div className="game__action-overlay">
-            <div className="game__button">
-                <button onClick={() => this.props.onReady()}>Ready</button>
-            </div>
+            {buttons.map(b =>
+                <div className="game__button" key={b.label}>
+                    <button onClick={b.onClick}>{b.label}</button>
+                </div>
+            )}
         </div>
     }
 }
