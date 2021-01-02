@@ -2,7 +2,7 @@ import './game.scss';
 
 import React, {Component} from "react";
 import {GamePhase, PlayerGameState} from "../shared/PlayerGameState";
-import {Round} from "./Round";
+import {Table} from "./Table";
 import {Card} from "../shared/Card";
 import {Event} from "../shared/Event";
 import {fetchGameState, processEvent} from "./processEvent";
@@ -110,7 +110,7 @@ export class Game extends Component<GameProps, GameState> {
         const isLobby = this.state.state.gamePhase === GamePhase.Created;
         return (
             <div className={`game ${isLobby ? 'game--lobby' : ''}`}>
-                <Round state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
+                <Table state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
                 {isLobby && !this.props.ready &&
                     <div className="game__ready-button">
                         <button onClick={() => this.props.onReady()}>Ready</button>
