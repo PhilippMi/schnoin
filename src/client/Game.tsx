@@ -141,22 +141,19 @@ export class Game extends Component<GameProps, GameState> {
             return null
         }
 
-        let buttons: {label: string; onClick: () => void}[]
-        if (isLobby) {
-            buttons = [{
-                label: 'Ready',
+        const buttons: {label: string; onClick: () => void}[] = []
+        if (isLobby && !this.props.ready) {
+            buttons.push({
+                label: 'Bereit',
                 onClick: () => this.props.onReady()
-            }]
+            })
         } else if (awaitingBet) {
-            buttons = []
             for(let i = 0; i <= 5; i++) {
                 buttons.push({
-                    label: i.toString(),
+                    label: i === 0 ? 'weida' : i.toString(),
                     onClick: () => this.placeBet(i === 0 ? null : i)
                 })
             }
-        } else {
-            assert(false)
         }
 
         return <div className="game__action-overlay">
