@@ -111,13 +111,22 @@ export class Game extends Component<GameProps, GameState> {
         return (
             <div className={`game ${isLobby ? 'game--lobby' : ''}`}>
                 <Table state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
-                {isLobby && !this.props.ready &&
-                    <div className="game__ready-button">
-                        <button onClick={() => this.props.onReady()}>Ready</button>
-                    </div>
-                }
+                {this.renderActionOverlay(isLobby)}
             </div>
         )
+    }
+
+    private renderActionOverlay(isLobby: boolean) {
+        const showOverlay = isLobby
+        if (!showOverlay) {
+            return null
+        }
+
+        return <div className="game__action-overlay">
+            <div className="game__button">
+                <button onClick={() => this.props.onReady()}>Ready</button>
+            </div>
+        </div>
     }
 }
 
