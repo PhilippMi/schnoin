@@ -180,7 +180,6 @@ function createTrick(... cardValues: Card[]): Trick {
         card: c
     }))
     return {
-        currentPlayerId: `${cardValues.length}`,
         cards
     }
 }

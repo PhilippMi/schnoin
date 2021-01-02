@@ -11,6 +11,7 @@ import {Event} from "../shared/Event";
 import {getPlayerByToken} from "./gameUtils";
 import {getOpponentIndexForPlayer} from "../shared/playerUtils";
 import {maxPlayers} from "../shared/constants";
+import {placeBet} from "./logic/placeBet";
 
 export const apiRouter = Router();
 
@@ -108,6 +109,13 @@ apiRouter.post('/game/:id/trick', (req, res) => {
     const game = getGame(req.params.id)
     const card: Card = req.body.card;
     playCard(game, getPlayerToken(req), card)
+    res.send('ok')
+})
+
+apiRouter.post('/game/:id/bet', (req, res) => {
+    const game = getGame(req.params.id)
+    const value: number | null = req.body.value;
+    placeBet(game, getPlayerToken(req), value)
     res.send('ok')
 })
 

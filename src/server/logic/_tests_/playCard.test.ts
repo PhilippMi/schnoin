@@ -36,13 +36,13 @@ it('should not allow playing a card if is not the playing player\' turn', () => 
     };
     const trick: Trick = {
         cards: [],
-        currentPlayerId: '222'
     }
     const game: GameModel = {
         phase: GamePhase.Started,
         players: [playingPlayer, otherPlayer],
         round: {
             phase: RoundPhase.Play,
+            currentPlayerId: '222',
             trick
         }
     } as GameModel

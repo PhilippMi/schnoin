@@ -1,5 +1,14 @@
-import {Opponent, User, PlayerGameState} from "../shared/PlayerGameState";
-import {CardPlayedEvent, Event, EventType, NewPlayerEvent, NewTrickEvent, PlayerReadyEvent, TrickEndEvent} from "../shared/Event";
+import {Opponent, PlayerGameState, RoundPhase, User} from "../shared/PlayerGameState";
+import {
+    BetPlacedEvent, BettingEndEvent,
+    CardPlayedEvent,
+    Event,
+    EventType,
+    NewPlayerEvent,
+    NewTrickEvent,
+    PlayerReadyEvent,
+    TrickEndEvent
+} from "../shared/Event";
 import {isSameCard} from "../shared/cardUtils";
 import {getOpponentIndexForPlayer} from "../shared/playerUtils";
 import {assert} from "./assert";
@@ -11,6 +20,12 @@ export async function processEvent(state: PlayerGameState, event: Event): Promis
             return 0
         case EventType.PlayerReady:
             playerReady(state, event)
+            return 0
+        case EventType.BetPlaced:
+            await betPlaced(state, event)
+            return 0
+        case EventType.BettingEnd:
+            bettingEnd(state, event)
             return 0
         case EventType.NewRound:
             await newRound(state)
@@ -35,9 +50,32 @@ function isOpponent(player: User | Opponent): player is Opponent {
     return typeof (player as Opponent).nCards === 'number';
 }
 
+function placeBet(state: PlayerGameState) {
+    if (state.player.id === state.round?.currentPlayerId) {
+        fetch(`/api/game/${state.id}/bet`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                value: state.player.index === 0 ? 5 : null
+            })
+        })
+            .catch(console.error)
+    }
+}
+
 async function newRound(state: PlayerGameState) {
     const newState = await fetchGameState(state.id)
     Object.assign(state, newState)
+    // temporary
+    await placeBet(state)
+}
+
+function bettingEnd(state: PlayerGameState, event: BettingEndEvent) {
+    assert(state.round)
+    state.round.phase = RoundPhase.Play
+    state.round.currentPlayerId = event.payload.winnerId
 }
 
 function newPlayer(state: PlayerGameState, event: NewPlayerEvent) {
@@ -50,6 +88,16 @@ function newPlayer(state: PlayerGameState, event: NewPlayerEvent) {
         nCards: 0,
         ready: false
     }
+}
+
+async function betPlaced(state: PlayerGameState, event: BetPlacedEvent) {
+    assert(state.round)
+    state.round.bets.push({
+        value: event.payload.value,
+        playerId: event.payload.playerId
+    })
+    state.round.currentPlayerId = event.payload.nextPlayerId
+    await placeBet(state)
 }
 
 function playerReady(state: PlayerGameState, event: PlayerReadyEvent) {
@@ -68,13 +116,14 @@ function cardPlayed(state: PlayerGameState, event: CardPlayedEvent) {
         player.cards = player.cards.filter(c => !isSameCard(c, card))
     }
     state.round.trick.cards.push({ card, playerId })
-    state.round.trick.currentPlayerId = nextPlayerId
+    state.round.currentPlayerId = nextPlayerId
 }
 
 function newTrick(state: PlayerGameState, event: NewTrickEvent) {
     assert(state.round)
     const {startPlayerId} = event.payload
-    state.round.trick = { currentPlayerId: startPlayerId, cards: []}
+    state.round.currentPlayerId = startPlayerId
+    state.round.trick = { cards: []}
 }
 
 function trickEnd(state: PlayerGameState, event: TrickEndEvent) {
@@ -84,7 +133,7 @@ function trickEnd(state: PlayerGameState, event: TrickEndEvent) {
     const winningPlayer = getPlayerById(state, winningPlayerId)
     winningPlayer.tricksWon++
     state.round.trick.cards = []
-    state.round.trick.currentPlayerId = null
+    state.round.currentPlayerId = null
 }
 
 function getPlayerById(state: PlayerGameState, id: string): User | Opponent {

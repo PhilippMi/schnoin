@@ -10,9 +10,9 @@ export interface PlayerGameState {
 }
 
 export enum GamePhase {
-    Created,
-    Started,
-    Finished
+    Created='Created',
+    Started='Started',
+    Finished='Finished'
 }
 
 
@@ -35,14 +35,15 @@ export interface Opponent extends Player {
 
 export interface Round {
     phase: RoundPhase
+    currentPlayerId: string | null
     bets: Bet[]
     trumpSuit?: Suit
     trick?: Trick
 }
 
 export enum RoundPhase {
-    Betting,
-    Play
+    Betting='Betting',
+    Play='Play'
 }
 
 export interface Bet {
@@ -51,7 +52,6 @@ export interface Bet {
 }
 
 export interface Trick {
-    currentPlayerId: string | null
     cards: {
         playerId: string
         card: Card

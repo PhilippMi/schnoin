@@ -9,6 +9,7 @@ import {getPlayerById, getPlayerByToken} from "../gameUtils";
 import {getHighestCardValue} from "./cardValues";
 import {getCardsAllowedToBePlayed} from "./cardsAllowedToPlay";
 import assert from "assert";
+import {getNextPlayer} from "./getNextPlayer";
 
 export function playCard(game: GameModel, playerToken: string, card: Card) {
     if (game.phase !== GamePhase.Started) {
@@ -22,7 +23,7 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
 
     const player = getPlayerByToken(game, playerToken);
 
-    if (currentTrick.currentPlayerId !== player.id) {
+    if (game.round.currentPlayerId !== player.id) {
         throw new UserError(`It is not player ${player.name}'s turn`)
     }
 
@@ -37,10 +38,9 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
     const nextPlayer = getNextPlayer(player, game);
     const nextPlayerId = wasLastPlayer ? null : nextPlayer.id;
     game.round.trick = {
-        currentPlayerId: nextPlayerId,
         cards: newCardsInTrick
     }
-    console.log('next player: ', nextPlayer.name)
+    game.round.currentPlayerId = nextPlayerId
     eventBus.trigger(game, { eventType: EventType.CardPlayed, payload: { card, playerId: player.id, nextPlayerId }})
 
     if(wasLastPlayer) {
@@ -69,9 +69,9 @@ function finishTrick(game: GameModel) {
 
     if (game.players[0].cards.length > 0) {
         game.round.trick = {
-            currentPlayerId: winningPlayerId,
             cards: []
         }
+        game.round.currentPlayerId = winningPlayerId
         eventBus.trigger(game, {eventType: EventType.NewTrick, payload: {startPlayerId: winningPlayerId}})
     } else {
         game.round.trick = undefined
@@ -84,11 +84,3 @@ function getHighestCardPlayerId(currentTrick: Trick, trumpSuit: Suit): string {
     return getHighestCardValue(currentTrick.cards, currentTrick.cards[0].card.suit, trumpSuit)!.item.playerId
 }
 
-function getNextPlayer(currentPlayer: Player, game: GameModel): Player {
-    const index = game.players.indexOf(currentPlayer);
-    if (index === -1) {
-        throw new Error(`cannot find player ${currentPlayer.name}`)
-    }
-    const nextIndex = (index + 1) % game.players.length
-    return game.players[nextIndex]
-}

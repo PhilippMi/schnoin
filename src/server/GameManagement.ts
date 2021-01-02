@@ -66,12 +66,13 @@ export function startGame(game: GameModel) {
 
     const suits = [Suit.Leaves, Suit.Acorns, Suit.Hearts, Suit.Bells];
 
+    const startPlayerId = game.players[0].id;
     game.round = {
         phase: RoundPhase.Betting,
+        currentPlayerId: startPlayerId,
         trumpSuit: suits[Math.floor(Math.random() * suits.length)],
         bets: []
     }
-    let startPlayerId = game.players[0].id;
     game.players.forEach(p => Object.assign(p, {
         cards: game.deck.popCards(5),
         tricksWon: 0
@@ -88,11 +89,4 @@ export function startGame(game: GameModel) {
             }))
         }
     })
-
-    game.round.phase = RoundPhase.Play
-    game.round.trick = {
-        currentPlayerId: startPlayerId,
-        cards: []
-    }
-    eventBus.trigger(game, { eventType: EventType.NewTrick, payload: { startPlayerId }})
 }
