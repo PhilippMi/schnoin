@@ -70,7 +70,6 @@ export function startGame(game: GameModel) {
     game.round = {
         phase: RoundPhase.Betting,
         currentPlayerId: startPlayerId,
-        trumpSuit: suits[Math.floor(Math.random() * suits.length)],
         bets: []
     }
     game.players.forEach(p => Object.assign(p, {
@@ -81,7 +80,6 @@ export function startGame(game: GameModel) {
     eventBus.trigger(game, {
         eventType: EventType.NewRound,
         payload: {
-            trumpSuit: game.round.trumpSuit,
             players: game.players.map(p => ({
                 id: p.id,
                 nCards: p.cards.length,

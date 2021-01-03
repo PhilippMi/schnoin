@@ -1,11 +1,12 @@
 import './game.scss';
 
 import React, {Component} from "react";
-import {GamePhase, PlayerGameState, RoundPhase} from "../shared/PlayerGameState";
+import {GamePhase, PlayerGameState} from "../shared/PlayerGameState";
 import {Table} from "./Table";
-import {Card} from "../shared/Card";
+import {Card, Suit} from "../shared/Card";
 import {Event} from "../shared/Event";
 import {fetchGameState, processEvent} from "./processEvent";
+import {ActionOverlay} from "./ActionOverlay";
 import {assert} from "./assert";
 
 export interface GameProps {
@@ -118,6 +119,20 @@ export class Game extends Component<GameProps, GameState> {
             .catch(console.error)
     }
 
+    private chooseTrumpSuit(suit: Suit) {
+        fetch(`/api/game/${this.props.id}/trump-suit`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                suit
+            })
+        })
+            .then(() => this.process())
+            .catch(console.error)
+    }
+
     render() {
         if (!this.state.state) {
             return null
@@ -132,37 +147,14 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     private renderActionOverlay() {
-        const game = this.state.state;
-        const isLobby = game?.gamePhase === GamePhase.Created;
-        const awaitingBet = game?.round?.phase === RoundPhase.Betting && game.round.currentPlayerId === game.player.id;
-
-        const showOverlay = isLobby || awaitingBet
-        if (!showOverlay) {
-            return null
-        }
-
-        const buttons: {label: string; onClick: () => void}[] = []
-        if (isLobby && !this.props.ready) {
-            buttons.push({
-                label: 'Bereit',
-                onClick: () => this.props.onReady()
-            })
-        } else if (awaitingBet) {
-            for(let i = 0; i <= 5; i++) {
-                buttons.push({
-                    label: i === 0 ? 'weida' : i.toString(),
-                    onClick: () => this.placeBet(i === 0 ? null : i)
-                })
-            }
-        }
-
-        return <div className="game__action-overlay">
-            {buttons.map(b =>
-                <div className="game__button" key={b.label}>
-                    <button onClick={b.onClick}>{b.label}</button>
-                </div>
-            )}
-        </div>
+        assert(this.state.state)
+        return <ActionOverlay
+            game={this.state.state}
+            ready={this.props.ready}
+            onReady={this.props.onReady}
+            placeBet={value => this.placeBet(value)}
+            chooseTrumpSuit={suit => this.chooseTrumpSuit(suit)}
+        />
     }
 }
 

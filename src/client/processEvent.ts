@@ -1,13 +1,15 @@
 import {Opponent, PlayerGameState, RoundPhase, User} from "../shared/PlayerGameState";
 import {
-    BetPlacedEvent, BettingEndEvent,
+    BetPlacedEvent,
+    BettingEndEvent,
     CardPlayedEvent,
     Event,
     EventType,
     NewPlayerEvent,
     NewTrickEvent,
     PlayerReadyEvent,
-    TrickEndEvent
+    TrickEndEvent,
+    TrumpSuitChosenEvent
 } from "../shared/Event";
 import {isSameCard} from "../shared/cardUtils";
 import {getOpponentIndexForPlayer} from "../shared/playerUtils";
@@ -27,6 +29,9 @@ export async function processEvent(state: PlayerGameState, event: Event): Promis
         case EventType.BettingEnd:
             bettingEnd(state, event)
             return 0
+        case EventType.TrumpSuitChosen:
+            trumpSuitChosen(state, event)
+            return 500
         case EventType.NewRound:
             await newRound(state)
             return 0
@@ -57,8 +62,13 @@ async function newRound(state: PlayerGameState) {
 
 function bettingEnd(state: PlayerGameState, event: BettingEndEvent) {
     assert(state.round)
-    state.round.phase = RoundPhase.Play
     state.round.currentPlayerId = event.payload.winnerId
+}
+
+function trumpSuitChosen(state: PlayerGameState, event: TrumpSuitChosenEvent) {
+    assert(state.round)
+    state.round.trumpSuit = event.payload.trumpSuit
+    state.round.phase = RoundPhase.Play
 }
 
 function newPlayer(state: PlayerGameState, event: NewPlayerEvent) {

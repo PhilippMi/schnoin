@@ -1,7 +1,7 @@
-import {NextFunction, Request, Response, Router} from 'express';
+import {Request, Response, Router} from 'express';
 import {Opponent, PlayerGameState} from "../shared/PlayerGameState";
 import {getGame} from "./GamesRepository";
-import {Card} from "../shared/Card";
+import {Card, Suit} from "../shared/Card";
 import {playCard} from "./logic/playCard";
 import {UserError} from "./UserError";
 import {GameModel, Player} from "./GameModel";
@@ -12,6 +12,7 @@ import {getPlayerByToken} from "./gameUtils";
 import {getOpponentIndexForPlayer} from "../shared/playerUtils";
 import {maxPlayers} from "../shared/constants";
 import {placeBet} from "./logic/placeBet";
+import {chooseTrumpSuit} from "./logic/chooseTrumpSuit";
 
 export const apiRouter = Router();
 
@@ -116,6 +117,13 @@ apiRouter.post('/game/:id/bet', (req, res) => {
     const game = getGame(req.params.id)
     const value: number | null = req.body.value;
     placeBet(game, getPlayerToken(req), value)
+    res.send('ok')
+})
+
+apiRouter.post('/game/:id/trump-suit', (req, res) => {
+    const game = getGame(req.params.id)
+    const suit: Suit = req.body.suit;
+    chooseTrumpSuit(game, getPlayerToken(req), suit)
     res.send('ok')
 })
 

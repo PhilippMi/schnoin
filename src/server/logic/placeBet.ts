@@ -65,22 +65,13 @@ function finishBetting(game: GameModel) {
     const winnerId = highestBet?.playerId || game.players[game.players.length - 1].id
     const betValue = highestBet?.value || 1
 
-    game.round.phase = RoundPhase.Play
+    game.round.currentPlayerId = winnerId
     eventBus.trigger(game, {
         eventType: EventType.BettingEnd,
         payload: {
             winnerId,
             betValue
         }
-    })
-
-    game.round.currentPlayerId = winnerId
-    game.round.trick = {
-        cards: []
-    }
-    eventBus.trigger(game, {
-        eventType: EventType.NewTrick,
-        payload: { startPlayerId: winnerId }
     })
 }
 
