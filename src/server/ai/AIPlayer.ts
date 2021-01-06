@@ -1,4 +1,4 @@
-import {GameModel, Player} from "../GameModel";
+import {GameModel, PlayerModel} from "../GameModel";
 import {eventBus} from "../eventBus";
 import {registerPlayer} from "../GameManagement";
 import {v4 as uuid} from 'uuid';
@@ -14,7 +14,7 @@ import {chooseTrumpSuit} from "../logic/chooseTrumpSuit";
 let playerIndex = 1;
 
 export class AIPlayer {
-    private readonly player: Player
+    private readonly player: PlayerModel
 
     constructor(private readonly game: GameModel) {
         eventBus.register(game, EventType.NewRound, () => this.onPlaceBet())

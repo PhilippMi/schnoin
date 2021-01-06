@@ -1,6 +1,6 @@
-import {GameModel, Player} from "../GameModel";
+import {GameModel, PlayerModel} from "../GameModel";
 
-export function getNextPlayer(currentPlayer: Player, game: GameModel): Player {
+export function getNextPlayer(currentPlayer: PlayerModel, game: GameModel): PlayerModel {
     const index = game.players.indexOf(currentPlayer);
     if (index === -1) {
         throw new Error(`cannot find player ${currentPlayer.name}`)

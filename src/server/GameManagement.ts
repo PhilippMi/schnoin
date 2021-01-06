@@ -1,11 +1,11 @@
-import {GameModel, Player} from "./GameModel";
+import {GameModel, PlayerModel} from "./GameModel";
 import {v4 as uuid} from "uuid";
 import {UserError} from "./UserError";
 import {eventBus} from "./eventBus";
 import {EventType} from "../shared/Event";
 import {GamePhase, RoundPhase} from "../shared/PlayerGameState";
 import {maxPlayers} from "../shared/constants";
-import {Suit} from "../shared/Card";
+import {Deck} from "./Deck";
 
 export function registerPlayer(game: GameModel, token: string, name: string) {
     if (game.phase !== GamePhase.Created) {
@@ -23,7 +23,7 @@ export function registerPlayer(game: GameModel, token: string, name: string) {
         throw new UserError('Player is already registered')
     }
 
-    const newPlayer: Player = {
+    const newPlayer: PlayerModel = {
         ready: false,
         name,
         id: uuid(),
@@ -63,17 +63,24 @@ export function startGame(game: GameModel) {
     if(game.phase !== GamePhase.Created) {
         throw new Error('Game already started')
     }
+    startRound(game);
+}
 
-    const suits = [Suit.Leaves, Suit.Acorns, Suit.Hearts, Suit.Bells];
+export function startAnotherRound(game: GameModel) {
+    startRound(game)
+}
 
+function startRound(game: GameModel) {
     const startPlayerId = game.players[0].id;
-    game.round = {
+    const round = {
+        deck: new Deck(),
         phase: RoundPhase.Betting,
         currentPlayerId: startPlayerId,
         bets: []
-    }
+    };
+    game.round = round
     game.players.forEach(p => Object.assign(p, {
-        cards: game.deck.popCards(5),
+        cards: round.deck.popCards(5),
         tricksWon: 0
     }))
     game.phase = GamePhase.Started

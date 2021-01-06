@@ -1,4 +1,4 @@
-import {GameModel, Player} from "../GameModel"
+import {GameModel, PlayerModel} from "../GameModel"
 import {Card, Suit} from "../../shared/Card"
 import {UserError} from "../UserError"
 import {GamePhase, Round, RoundPhase, Trick} from "../../shared/PlayerGameState";
@@ -10,6 +10,7 @@ import {getHighestCardValue} from "./cardValues";
 import {getCardsAllowedToBePlayed} from "./cardsAllowedToPlay";
 import assert from "assert";
 import {getNextPlayer} from "./getNextPlayer";
+import {startAnotherRound} from "../GameManagement";
 
 export function playCard(game: GameModel, playerToken: string, card: Card) {
     if (game.phase !== GamePhase.Started) {
@@ -48,7 +49,7 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
     }
 }
 
-function ensureCardAllowed(card: Card, player: Player, round: Round, currentTrick: Trick) {
+function ensureCardAllowed(card: Card, player: PlayerModel, round: Round, currentTrick: Trick) {
     assert(round.trumpSuit !== undefined)
     const allowedCards = getCardsAllowedToBePlayed(player.cards, currentTrick, round.trumpSuit);
 
@@ -75,8 +76,9 @@ function finishTrick(game: GameModel) {
         eventBus.trigger(game, {eventType: EventType.NewTrick, payload: {startPlayerId: winningPlayerId}})
     } else {
         game.round.trick = undefined
-        game.phase = GamePhase.Finished
         eventBus.trigger(game, {eventType: EventType.RoundEnd, payload: {}})
+
+        startAnotherRound(game)
     }
 }
 

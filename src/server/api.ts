@@ -4,7 +4,7 @@ import {getGame} from "./GamesRepository";
 import {Card, Suit} from "../shared/Card";
 import {playCard} from "./logic/playCard";
 import {UserError} from "./UserError";
-import {GameModel, Player} from "./GameModel";
+import {GameModel, PlayerModel} from "./GameModel";
 import {markPlayerReady, registerPlayer} from "./GameManagement";
 import {getEventsForGame} from "./eventStore";
 import {Event} from "../shared/Event";
@@ -69,12 +69,18 @@ function mapToGameState(game: GameModel, playerToken: string): PlayerGameState {
             index: game.players.indexOf(player)
         },
         opponents: opponents,
-        round: game.round,
+        round: game.round && {
+            phase: game.round.phase,
+            bets: game.round.bets,
+            currentPlayerId: game.round.currentPlayerId,
+            trick: game.round.trick,
+            trumpSuit: game.round.trumpSuit
+        },
         lastEventId: lastEvent?.id || null
     }
 }
 
-function getOpponentsForPlayer(game: GameModel, player: Player) {
+function getOpponentsForPlayer(game: GameModel, player: PlayerModel) {
 
     const playerIndex = game.players.indexOf(player)
     const opponents: (Opponent | null)[] = Array(maxPlayers - 1).fill(null);

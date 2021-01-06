@@ -1,5 +1,4 @@
 import {GameModel} from "./GameModel";
-import {Deck} from "./Deck";
 import {GamePhase} from "../shared/PlayerGameState";
 import {startGameMaster} from "./GameMaster";
 
@@ -19,11 +18,9 @@ export function getGame(id: string): GameModel {
 }
 
 function createGame(id: string): GameModel {
-    const deck = new Deck();
     return {
         id,
         phase: GamePhase.Created,
-        deck,
         players: []
     }
 }

@@ -47,6 +47,8 @@ export async function processEvent(state: PlayerGameState, event: Event): Promis
         case EventType.NewTrick:
             newTrick(state, event)
             return 0
+        case EventType.RoundEnd:
+            return 1500
     }
     return 0
 }
