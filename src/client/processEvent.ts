@@ -3,6 +3,7 @@ import {
     BetPlacedEvent,
     BettingEndEvent,
     CardPlayedEvent,
+    CardsBoughtEvent,
     Event,
     EventType,
     NewPlayerEvent,
@@ -32,6 +33,12 @@ export async function processEvent(state: PlayerGameState, event: Event): Promis
         case EventType.TrumpSuitChosen:
             trumpSuitChosen(state, event)
             return 500
+        case EventType.CardsBought:
+            await cardsBought(state, event)
+            return 0
+        case EventType.BuyingEnd:
+            await buyingEnd(state)
+            return 0
         case EventType.NewRound:
             await newRound(state)
             return 0
@@ -70,6 +77,16 @@ function bettingEnd(state: PlayerGameState, event: BettingEndEvent) {
 function trumpSuitChosen(state: PlayerGameState, event: TrumpSuitChosenEvent) {
     assert(state.round)
     state.round.trumpSuit = event.payload.trumpSuit
+    state.round.phase = RoundPhase.Buying
+}
+
+function cardsBought(state: PlayerGameState, event: CardsBoughtEvent) {
+    assert(state.round)
+    state.round.currentPlayerId = event.payload.nextPlayerId
+}
+
+function buyingEnd(state: PlayerGameState) {
+    assert(state.round)
     state.round.phase = RoundPhase.Play
 }
 

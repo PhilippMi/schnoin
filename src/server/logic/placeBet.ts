@@ -33,7 +33,7 @@ export function placeBet(game: GameModel, playerToken: string, value: number | n
         throw new UserError('Bet must be higher than the currently highest one')
     }
 
-    const isLastPlayer = bets.length + 1 === game.players.length;
+    const isLastPlayer = bets.length + 1 >= game.players.length;
     if (highestBet === 0 && value === 1 && !isLastPlayer) {
         throw new UserError('Only the last player can bet with a value of 1')
     }

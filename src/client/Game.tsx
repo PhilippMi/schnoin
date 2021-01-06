@@ -1,7 +1,7 @@
 import './game.scss';
 
 import React, {Component} from "react";
-import {GamePhase, PlayerGameState} from "../shared/PlayerGameState";
+import {GamePhase, PlayerGameState, RoundPhase} from "../shared/PlayerGameState";
 import {Table} from "./Table";
 import {Card, Suit} from "../shared/Card";
 import {Event} from "../shared/Event";
@@ -18,6 +18,7 @@ export interface GameProps {
 interface GameState {
     state: PlayerGameState | undefined,
     eventsToProcess: Event[]
+    selectedCards: Set<Card>
 }
 
 export class Game extends Component<GameProps, GameState> {
@@ -29,6 +30,7 @@ export class Game extends Component<GameProps, GameState> {
         super(props);
         this.state = {
             state: undefined,
+            selectedCards: new Set(),
             eventsToProcess: []
         }
     }
@@ -92,17 +94,43 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     private selectCard(card: Card) {
-        fetch(`/api/game/${this.props.id}/trick`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                card: card
-            })
-        })
-            .then(() => this.process())
-            .catch(console.error)
+        if (!this.state.state || this.state.state.round?.currentPlayerId !== this.state.state.player.id) {
+            console.error('It is not your turn yet')
+            return
+        }
+
+        switch(this.state.state.round.phase) {
+            case RoundPhase.Buying:
+                this.setState(prevState => {
+                    const newSelectedCards = new Set(Array.from(prevState.selectedCards))
+                    if (prevState.selectedCards.has(card)) {
+                        newSelectedCards.delete(card)
+                    } else {
+                        newSelectedCards.add(card)
+                    }
+                    return {
+                        selectedCards: newSelectedCards
+                    }
+                })
+                break
+            case RoundPhase.Play:
+                fetch(`/api/game/${this.props.id}/trick`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        card: card
+                    })
+                })
+                    .then(() => this.process())
+                    .catch(console.error)
+                break
+            default:
+                console.warn(`Round is not in a phase to select cards: ${this.state.state.round.phase}`)
+        }
+
+
     }
 
     private placeBet(value: number | null) {
@@ -133,6 +161,24 @@ export class Game extends Component<GameProps, GameState> {
             .catch(console.error)
     }
 
+    private buyCards() {
+        fetch(`/api/game/${this.props.id}/buy`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                cards: Array.from(this.state.selectedCards)
+            })
+        })
+            .then(response => response.json())
+            .then(({newCards}) => {
+                assert(this.state.state)
+                return this.state.state.player.cards = newCards;
+            })
+            .catch(console.error)
+    }
+
     render() {
         if (!this.state.state) {
             return null
@@ -140,7 +186,11 @@ export class Game extends Component<GameProps, GameState> {
         const isLobby = this.state.state.gamePhase === GamePhase.Created;
         return (
             <div className={`game ${isLobby ? 'game--lobby' : ''}`}>
-                <Table state={this.state.state} onSelectCard={(c) => this.selectCard(c)}/>
+                <Table
+                    state={this.state.state}
+                    selectedCards={this.state.selectedCards}
+                    onSelectCard={(c) => this.selectCard(c)}
+                />
                 {this.renderActionOverlay()}
             </div>
         )
@@ -152,6 +202,8 @@ export class Game extends Component<GameProps, GameState> {
             game={this.state.state}
             ready={this.props.ready}
             onReady={this.props.onReady}
+            nSelectedCards={this.state.selectedCards.size}
+            buyCards={() => this.buyCards()}
             placeBet={value => this.placeBet(value)}
             chooseTrumpSuit={suit => this.chooseTrumpSuit(suit)}
         />

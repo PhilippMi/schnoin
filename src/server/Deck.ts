@@ -2,7 +2,7 @@ import {Card, Rank, Suit} from "../shared/Card"
 import {isWeli} from "../shared/cardUtils";
 
 export class Deck {
-    cards: Card[]
+    private readonly cards: Card[]
 
     constructor() {
         const newCards = createDeck()
@@ -15,6 +15,10 @@ export class Deck {
 
     public popCards(nCards: number): Card[] {
         return this.cards.splice(0, nCards);
+    }
+
+    public get size() {
+        return this.cards.length
     }
 
 }

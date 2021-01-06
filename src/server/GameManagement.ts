@@ -4,7 +4,7 @@ import {UserError} from "./UserError";
 import {eventBus} from "./eventBus";
 import {EventType} from "../shared/Event";
 import {GamePhase, RoundPhase} from "../shared/PlayerGameState";
-import {maxPlayers} from "../shared/constants";
+import {maxPlayers, nHandCards} from "../shared/constants";
 import {Deck} from "./Deck";
 
 export function registerPlayer(game: GameModel, token: string, name: string) {
@@ -77,11 +77,13 @@ function startRound(game: GameModel) {
         deck: new Deck(),
         phase: RoundPhase.Betting,
         currentPlayerId: startPlayerId,
+        startPlayerId: startPlayerId,
+        cardsExchanged: [],
         bets: []
     };
     game.round = round
     game.players.forEach(p => Object.assign(p, {
-        cards: round.deck.popCards(5),
+        cards: round.deck.popCards(nHandCards),
         tricksWon: 0
     }))
     game.phase = GamePhase.Started

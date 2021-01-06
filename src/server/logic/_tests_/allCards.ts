@@ -1,0 +1,35 @@
+import {Rank, Suit} from "../../../shared/Card";
+
+export const weli = {suit: Suit.Bells, rank: Rank.Six}
+export const acorns7 = {suit: Suit.Acorns, rank: Rank.Seven}
+export const acorns8 = {suit: Suit.Acorns, rank: Rank.Eight}
+export const acorns9 = {suit: Suit.Acorns, rank: Rank.Nine}
+export const acorns10 = {suit: Suit.Acorns, rank: Rank.Ten}
+export const acornsUnder = {suit: Suit.Acorns, rank: Rank.Under}
+export const acornsOver = {suit: Suit.Acorns, rank: Rank.Over}
+export const acornsKing = {suit: Suit.Acorns, rank: Rank.King}
+export const acornsDeuce = {suit: Suit.Acorns, rank: Rank.Deuce}
+export const bells7 = {suit: Suit.Bells, rank: Rank.Seven}
+export const bells8 = {suit: Suit.Bells, rank: Rank.Eight}
+export const bells9 = {suit: Suit.Bells, rank: Rank.Nine}
+export const bells10 = {suit: Suit.Bells, rank: Rank.Ten}
+export const bellsUnder = {suit: Suit.Bells, rank: Rank.Under}
+export const bellsOver = {suit: Suit.Bells, rank: Rank.Over}
+export const bellsKing = {suit: Suit.Bells, rank: Rank.King}
+export const bellsDeuce = {suit: Suit.Bells, rank: Rank.Deuce}
+export const leaves7 = {suit: Suit.Leaves, rank: Rank.Seven}
+export const leaves8 = {suit: Suit.Leaves, rank: Rank.Eight}
+export const leaves9 = {suit: Suit.Leaves, rank: Rank.Nine}
+export const leaves10 = {suit: Suit.Leaves, rank: Rank.Ten}
+export const leavesUnder = {suit: Suit.Leaves, rank: Rank.Under}
+export const leavesOver = {suit: Suit.Leaves, rank: Rank.Over}
+export const leavesKing = {suit: Suit.Leaves, rank: Rank.King}
+export const leavesDeuce = {suit: Suit.Leaves, rank: Rank.Deuce}
+export const hearts7 = {suit: Suit.Hearts, rank: Rank.Seven}
+export const hearts8 = {suit: Suit.Hearts, rank: Rank.Eight}
+export const hearts9 = {suit: Suit.Hearts, rank: Rank.Nine}
+export const hearts10 = {suit: Suit.Hearts, rank: Rank.Ten}
+export const heartsUnder = {suit: Suit.Hearts, rank: Rank.Under}
+export const heartsOver = {suit: Suit.Hearts, rank: Rank.Over}
+export const heartsKing = {suit: Suit.Hearts, rank: Rank.King}
+export const heartsDeuce = {suit: Suit.Hearts, rank: Rank.Deuce}

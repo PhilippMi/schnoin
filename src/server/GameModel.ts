@@ -16,6 +16,10 @@ export interface RoundModel {
     phase: RoundPhase
     currentPlayerId: string | null
     bets: Bet[]
+    cardsExchanged: {
+        playerId: string,
+        nCards: number
+    }[]
     trumpSuit?: Suit
     trick?: Trick
 }

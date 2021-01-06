@@ -1,16 +1,17 @@
 import "./table.scss"
 import {Player, PlayerGameState, Round, RoundPhase} from "../shared/PlayerGameState";
 import React from "react";
-import {CardView} from "./CardView";
 import {Trick} from "./Trick";
 import {Card} from "../shared/Card";
 import {HiddenHand} from "./HiddenHand";
 import {PlayerView} from "./PlayerView";
 import {TrumpSuitIcon} from "./TrumpSuitIcon";
+import PlayerHand from "./PlayerHand";
 
 interface TableProps {
     state: PlayerGameState,
     onSelectCard: (card: Card) => void
+    selectedCards: Set<Card>
 }
 
 function getScore(round: Round | undefined, o: Player): number | string {
@@ -25,17 +26,11 @@ function getScore(round: Round | undefined, o: Player): number | string {
 }
 
 export function Table(props: TableProps) {
-    const cardItems = props.state.player.cards.map(c =>
-        <button className="table__card" key={`${c.suit}.${c.rank}`} onClick={() => selectCard(c)}>
-            <CardView card={c}/>
-        </button>
-    )
+
     const opponents = props.state.opponents.map((o, i) =>
         <div className={`table__opponent table__opponent--${i + 1}`} key={i}>
             {o && <PlayerView score={getScore(props.state.round, o)} name={o.name}>
-                <div className={`table__opponent-hand`}>
-                    <HiddenHand nCards={o.nCards} rotated={i % 2 === 0}/>
-                </div>
+                <HiddenHand nCards={o.nCards} rotated={i % 2 === 0}/>
             </PlayerView>}
         </div>
     )
@@ -47,9 +42,7 @@ export function Table(props: TableProps) {
         </div>}
         <div className="table__player">
             <PlayerView score={getScore(props.state.round, props.state.player)} name={props.state.player.name}>
-                <div className="table__player-cards">
-                    {cardItems}
-                </div>
+                <PlayerHand cards={props.state.player.cards} onSelectCard={props.onSelectCard} selectedCards={props.selectedCards} />
             </PlayerView>
         </div>
         {opponents}
@@ -58,8 +51,5 @@ export function Table(props: TableProps) {
         </div>}
     </div>
 
-    function selectCard(card: Card) {
-        props.onSelectCard(card)
-    }
 }
 

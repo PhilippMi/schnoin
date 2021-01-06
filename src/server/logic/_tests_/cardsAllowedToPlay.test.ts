@@ -1,44 +1,27 @@
 import {getCardsAllowedToBePlayed} from "../cardsAllowedToPlay";
-import {Card, Rank, Suit} from "../../../shared/Card";
+import {Card, Suit} from "../../../shared/Card";
 import {Trick} from "../../../shared/PlayerGameState";
-
-const weli = {suit: Suit.Bells, rank: Rank.Six}
-
-const acorns7 = {suit: Suit.Acorns, rank: Rank.Seven}
-const acorns8 = {suit: Suit.Acorns, rank: Rank.Eight}
-const acorns9 = {suit: Suit.Acorns, rank: Rank.Nine}
-const acorns10 = {suit: Suit.Acorns, rank: Rank.Ten}
-const acornsUnder = {suit: Suit.Acorns, rank: Rank.Under}
-const acornsOver = {suit: Suit.Acorns, rank: Rank.Over}
-const acornsKing = {suit: Suit.Acorns, rank: Rank.King}
-const acornsDeuce = {suit: Suit.Acorns, rank: Rank.Deuce}
-
-const bells7 = {suit: Suit.Bells, rank: Rank.Seven}
-const bells8 = {suit: Suit.Bells, rank: Rank.Eight}
-const bells9 = {suit: Suit.Bells, rank: Rank.Nine}
-const bells10 = {suit: Suit.Bells, rank: Rank.Ten}
-const bellsUnder = {suit: Suit.Bells, rank: Rank.Under}
-const bellsOver = {suit: Suit.Bells, rank: Rank.Over}
-const bellsKing = {suit: Suit.Bells, rank: Rank.King}
-const bellsDeuce = {suit: Suit.Bells, rank: Rank.Deuce}
-
-const leaves7 = {suit: Suit.Leaves, rank: Rank.Seven}
-const leaves8 = {suit: Suit.Leaves, rank: Rank.Eight}
-const leaves9 = {suit: Suit.Leaves, rank: Rank.Nine}
-const leaves10 = {suit: Suit.Leaves, rank: Rank.Ten}
-const leavesUnder = {suit: Suit.Leaves, rank: Rank.Under}
-const leavesOver = {suit: Suit.Leaves, rank: Rank.Over}
-const leavesKing = {suit: Suit.Leaves, rank: Rank.King}
-const leavesDeuce = {suit: Suit.Leaves, rank: Rank.Deuce}
-
-const hearts7 = {suit: Suit.Hearts, rank: Rank.Seven}
-const hearts8 = {suit: Suit.Hearts, rank: Rank.Eight}
-const hearts9 = {suit: Suit.Hearts, rank: Rank.Nine}
-const hearts10 = {suit: Suit.Hearts, rank: Rank.Ten}
-const heartsUnder = {suit: Suit.Hearts, rank: Rank.Under}
-const heartsOver = {suit: Suit.Hearts, rank: Rank.Over}
-const heartsKing = {suit: Suit.Hearts, rank: Rank.King}
-const heartsDeuce = {suit: Suit.Hearts, rank: Rank.Deuce}
+import {
+    acorns7,
+    acorns8,
+    acornsKing,
+    bells10,
+    bells7,
+    bells8,
+    bells9,
+    bellsDeuce,
+    bellsOver,
+    hearts10,
+    hearts7,
+    hearts8,
+    hearts9,
+    heartsDeuce,
+    heartsKing,
+    leaves10,
+    leaves7,
+    leaves9,
+    weli
+} from "./allCards";
 
 
 it('should return all cards if the trick is still empty', () => {

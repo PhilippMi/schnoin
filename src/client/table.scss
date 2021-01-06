@@ -19,13 +19,6 @@
     grid-area: player;
   }
 
-  &__player-cards {
-    display: grid;
-    grid-auto-flow: column;
-    grid-gap: 1.5rem;
-    justify-content: center;
-  }
-
   &__opponent {
     position: relative;
 
@@ -50,7 +43,4 @@
     grid-area: trick;
   }
 
-  &__card {
-    width: 100%;
-  }
 }

@@ -13,6 +13,7 @@ import {getOpponentIndexForPlayer} from "../shared/playerUtils";
 import {maxPlayers} from "../shared/constants";
 import {placeBet} from "./logic/placeBet";
 import {chooseTrumpSuit} from "./logic/chooseTrumpSuit";
+import {buyCards} from "./logic/buyCards";
 
 export const apiRouter = Router();
 
@@ -131,6 +132,16 @@ apiRouter.post('/game/:id/trump-suit', (req, res) => {
     const suit: Suit = req.body.suit;
     chooseTrumpSuit(game, getPlayerToken(req), suit)
     res.send('ok')
+})
+
+apiRouter.post('/game/:id/buy', (req, res) => {
+    const game = getGame(req.params.id)
+    const cards: Card[] = req.body.cards;
+    const playerToken = getPlayerToken(req);
+    buyCards(game, playerToken, cards)
+    res.json({
+        newCards: getPlayerByToken(game, playerToken).cards
+    })
 })
 
 apiRouter.use((err: Error, req: Request, res: Response)  => {

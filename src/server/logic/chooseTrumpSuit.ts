@@ -6,7 +6,6 @@ import {getPlayerByToken} from "../gameUtils";
 import {eventBus} from "../eventBus";
 import {EventType} from "../../shared/Event";
 
-
 export function chooseTrumpSuit(game: GameModel, playerToken: string, trumpSuit: Suit) {
     if (game.phase !== GamePhase.Started) {
         throw new UserError('Game has not yet started or is already finished')
@@ -25,19 +24,11 @@ export function chooseTrumpSuit(game: GameModel, playerToken: string, trumpSuit:
     }
 
     game.round.trumpSuit = trumpSuit
-    game.round.phase = RoundPhase.Play
+    game.round.phase = RoundPhase.Buying
     eventBus.trigger(game, {
         eventType: EventType.TrumpSuitChosen,
         payload: {
             trumpSuit
         }
-    })
-
-    game.round.trick = {
-        cards: []
-    }
-    eventBus.trigger(game, {
-        eventType: EventType.NewTrick,
-        payload: { startPlayerId: game.round.currentPlayerId }
     })
 }

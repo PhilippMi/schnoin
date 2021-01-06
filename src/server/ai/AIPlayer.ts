@@ -7,9 +7,11 @@ import {EventType} from "../../shared/Event";
 import {getCardsAllowedToBePlayed} from "../logic/cardsAllowedToPlay";
 import assert from "assert";
 import {getHighestBet, placeBet} from "../logic/placeBet";
-import {Suit} from "../../shared/Card";
+import {Rank, Suit} from "../../shared/Card";
 import {RoundPhase} from "../../shared/PlayerGameState";
 import {chooseTrumpSuit} from "../logic/chooseTrumpSuit";
+import {isWeli} from "../../shared/cardUtils";
+import {buyCards} from "../logic/buyCards";
 
 let playerIndex = 1;
 
@@ -20,6 +22,8 @@ export class AIPlayer {
         eventBus.register(game, EventType.NewRound, () => this.onPlaceBet())
         eventBus.register(game, EventType.BetPlaced, () => this.onPlaceBet())
         eventBus.register(game, EventType.BettingEnd, () => this.onChooseTrumpSuit())
+        eventBus.register(game, EventType.TrumpSuitChosen, () => this.onBuyCards())
+        eventBus.register(game, EventType.CardsBought, () => this.onBuyCards())
         eventBus.register(game, EventType.CardPlayed, () => this.onPlayCard())
         eventBus.register(game, EventType.NewTrick, () => this.onPlayCard())
         eventBus.register(game, EventType.NewTrick, () => this.onPlayCard())
@@ -27,7 +31,7 @@ export class AIPlayer {
     }
 
     private onPlaceBet() {
-        if (this.isMyTurn()) {
+        if (this.isMyTurn() && this.game.round?.phase === RoundPhase.Betting) {
             assert(this.game.round)
             assert(this.game.round.phase === RoundPhase.Betting)
             const bestSuit = this.getBestSuit()
@@ -50,14 +54,33 @@ export class AIPlayer {
     }
 
     private onChooseTrumpSuit() {
-        if (this.isMyTurn()) {
+        if (this.isMyTurn() && this.game.round?.phase === RoundPhase.Betting) {
             const bestSuit = this.getBestSuit()
             chooseTrumpSuit(this.game, this.player.token, bestSuit.suit)
         }
     }
 
+    private onBuyCards() {
+        if (this.isMyTurn() && this.game.round?.phase === RoundPhase.Buying) {
+            assert(typeof this.game.round.trumpSuit === 'number')
+            const trumpSuit = this.game.round.trumpSuit
+            const cardsNotTrumpSuitOrDeuce = this.player.cards.filter(c =>
+                !isWeli(c) &&
+                c.suit !== trumpSuit &&
+                c.rank !== Rank.Deuce
+            )
+            if (cardsNotTrumpSuitOrDeuce.length === 4) {
+                cardsNotTrumpSuitOrDeuce.splice(0, 1)
+            }
+            if (this.game.round.deck.size < cardsNotTrumpSuitOrDeuce.length) {
+                cardsNotTrumpSuitOrDeuce.splice(0, cardsNotTrumpSuitOrDeuce.length - this.game.round.deck.size)
+            }
+            buyCards(this.game, this.player.token, cardsNotTrumpSuitOrDeuce)
+        }
+    }
+
     private onPlayCard() {
-        if (this.isMyTurn()) {
+        if (this.isMyTurn() && this.game.round?.phase === RoundPhase.Play) {
             playCard(this.game, this.player.token, this.randomCard())
         }
     }

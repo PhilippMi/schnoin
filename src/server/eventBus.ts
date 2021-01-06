@@ -20,7 +20,13 @@ export const eventBus = {
         const fullEvent = Object.assign({id: uuid()}, event)
         listeners
             .filter(l => (!l.eventType || l.eventType === event.eventType) && (!l.game || l.game === game))
-            .forEach(l => l.callback(fullEvent, game))
+            .forEach(l => setTimeout(() => {
+                try {
+                    l.callback(fullEvent, game);
+                } catch(e) {
+                    console.error(e)
+                }
+            }, 0))
     },
 
     deregister(callback: Function) {

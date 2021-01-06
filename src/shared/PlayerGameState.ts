@@ -43,6 +43,7 @@ export interface Round {
 
 export enum RoundPhase {
     Betting='Betting',
+    Buying='Buying',
     Play='Play'
 }
 

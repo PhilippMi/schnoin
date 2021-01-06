@@ -11,7 +11,9 @@ export enum EventType {
     NewPlayer = 'newplayer',
     PlayerReady = 'playerready',
     NewRound = 'newround',
-    RoundEnd = 'roundend'
+    RoundEnd = 'roundend',
+    CardsBought = 'cardsbought',
+    BuyingEnd = 'buyingend',
 }
 
 
@@ -77,6 +79,20 @@ export interface TrumpSuitChosenEvent extends BaseEvent {
     }
 }
 
+export interface CardsBoughtEvent extends BaseEvent {
+    eventType: EventType.CardsBought,
+    payload: {
+        playerId: string,
+        nCards: number,
+        nextPlayerId: string
+    }
+}
+
+export interface BuyingEndEvent extends BaseEvent {
+    eventType: EventType.BuyingEnd,
+    payload: {}
+}
+
 export interface CardPlayedEvent extends BaseEvent {
     eventType: EventType.CardPlayed
     payload: {
@@ -101,13 +117,15 @@ export interface TrickEndEvent extends BaseEvent {
 }
 
 export type Event = CardPlayedEvent | NewTrickEvent | TrickEndEvent | NewPlayerEvent | NewRoundEvent | PlayerReadyEvent
-    | RoundEndEvent | BetPlacedEvent | BettingEndEvent | TrumpSuitChosenEvent
+    | RoundEndEvent | BetPlacedEvent | BettingEndEvent | TrumpSuitChosenEvent | CardsBoughtEvent | BuyingEndEvent
 
 export interface EventMap {
     [EventType.NewTrick]: NewTrickEvent
     [EventType.BetPlaced]: BetPlacedEvent
     [EventType.BettingEnd]: BettingEndEvent
     [EventType.TrumpSuitChosen]: TrumpSuitChosenEvent
+    [EventType.CardsBought]: CardsBoughtEvent
+    [EventType.BuyingEnd]: BuyingEndEvent
     [EventType.CardPlayed]: CardPlayedEvent
     [EventType.TrickEnd]: TrickEndEvent
     [EventType.NewPlayer]: NewPlayerEvent

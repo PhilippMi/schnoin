@@ -35,7 +35,7 @@ export function playCard(game: GameModel, playerToken: string, card: Card) {
         playerId: player.id,
         card
     }]);
-    const wasLastPlayer = newCardsInTrick.length === game.players.length;
+    const wasLastPlayer = newCardsInTrick.length >= game.players.length;
     const nextPlayer = getNextPlayer(player, game);
     const nextPlayerId = wasLastPlayer ? null : nextPlayer.id;
     game.round.trick = {
