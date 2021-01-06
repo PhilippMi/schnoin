@@ -23,6 +23,7 @@ export interface RoundModel {
 export interface GameModel {
     id: string
     players: PlayerModel[]
+    startPlayerIndex: number
     round?: RoundModel
     phase: GamePhase
 }

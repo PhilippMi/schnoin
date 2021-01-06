@@ -9,6 +9,7 @@ import bellsIcon from "../../assets/schellen.svg";
 import heartsIcon from "../../assets/herz.svg";
 // @ts-ignore
 import leavesIcon from "../../assets/laub.svg";
+import {assert} from "./assert";
 
 interface TrumpSuitIconProps {
     trumpSuit: Suit
@@ -33,6 +34,8 @@ export function TrumpSuitIcon(props: TrumpSuitIconProps) {
             altText: 'Laub'
         }
     }
-    const {imgSrc, altText} = suitMap[props.trumpSuit]
+    const suitProps = suitMap[props.trumpSuit];
+    assert(suitProps, `No suit for value ${props.trumpSuit} found`)
+    const {imgSrc, altText} = suitProps
     return <img src={imgSrc} alt={altText} className='trump-suit-icon'/>
 }

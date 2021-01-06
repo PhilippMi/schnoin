@@ -67,11 +67,12 @@ export function startGame(game: GameModel) {
 }
 
 export function startAnotherRound(game: GameModel) {
+    game.startPlayerIndex = (game.startPlayerIndex + 1) % game.players.length
     startRound(game)
 }
 
 function startRound(game: GameModel) {
-    const startPlayerId = game.players[0].id;
+    const startPlayerId = game.players[game.startPlayerIndex].id;
     const round = {
         deck: new Deck(),
         phase: RoundPhase.Betting,

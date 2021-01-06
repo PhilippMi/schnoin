@@ -21,6 +21,7 @@ function createGame(id: string): GameModel {
     return {
         id,
         phase: GamePhase.Created,
-        players: []
+        players: [],
+        startPlayerIndex: 0
     }
 }
