@@ -24,7 +24,7 @@ interface GameState {
 export class Game extends Component<GameProps, GameState> {
     private updateInterval: number | undefined
     private processInterval: number | undefined
-    private waiting: boolean = false
+    private processing: boolean = false
 
     constructor(props: GameProps) {
         super(props);
@@ -55,21 +55,24 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     private async process() {
-        if (this.waiting) {
+        if (this.processing) {
             return
         }
         const nextEvent = this.state.eventsToProcess[0];
         if (nextEvent && this.state.state) {
-            const eventsToProcess = this.state.eventsToProcess;
-            const {newState, delay} = await updateState(this.state.state, nextEvent)
-            if (delay > 0) {
-                this.waiting = true
-                setTimeout(() => this.waiting = false, delay)
+            this.processing = true
+            try {
+                const eventsToProcess = this.state.eventsToProcess;
+                const {newState, delay} = await updateState(this.state.state, nextEvent)
+                setTimeout(() => this.processing = false, delay)
+                this.setState({
+                    eventsToProcess: eventsToProcess.slice(1),
+                    state: newState
+                })
+            } catch(e) {
+                console.error(e)
+                this.processing = false
             }
-            this.setState({
-                eventsToProcess: eventsToProcess.slice(1),
-                state: newState
-            })
         }
     }
 
