@@ -19,21 +19,19 @@ export class AIPlayer {
     private readonly player: PlayerModel
 
     constructor(private readonly game: GameModel) {
-        eventBus.register(game, EventType.NewRound, () => this.onPlaceBet())
-        eventBus.register(game, EventType.BetPlaced, () => this.onPlaceBet())
-        eventBus.register(game, EventType.BettingEnd, () => this.onChooseTrumpSuit())
-        eventBus.register(game, EventType.TrumpSuitChosen, () => this.onBuyCards())
-        eventBus.register(game, EventType.CardsBought, () => this.onBuyCards())
-        eventBus.register(game, EventType.CardPlayed, () => this.onPlayCard())
-        eventBus.register(game, EventType.NewTrick, () => this.onPlayCard())
-        eventBus.register(game, EventType.NewTrick, () => this.onPlayCard())
+        eventBus.register(game, EventType.NewRound, callDefedred(() => this.onPlaceBet()))
+        eventBus.register(game, EventType.BetPlaced, callDefedred(() => this.onPlaceBet()))
+        eventBus.register(game, EventType.BettingEnd, callDefedred(() => this.onChooseTrumpSuit()))
+        eventBus.register(game, EventType.TrumpSuitChosen, callDefedred(() => this.onBuyCards()))
+        eventBus.register(game, EventType.CardsBought, callDefedred(() => this.onBuyCards()))
+        eventBus.register(game, EventType.CardPlayed, callDefedred(() => this.onPlayCard()))
+        eventBus.register(game, EventType.NewTrick, callDefedred(() => this.onPlayCard()))
+        eventBus.register(game, EventType.NewTrick, callDefedred(() => this.onPlayCard()))
         this.player = registerPlayer(game, uuid(), `AI ${playerIndex++}`)
     }
 
     private onPlaceBet() {
-        if (this.isMyTurn() && this.game.round?.phase === RoundPhase.Betting) {
-            assert(this.game.round)
-            assert(this.game.round.phase === RoundPhase.Betting)
+        if (this.isMyTurn() && this.game.round?.phase === RoundPhase.Betting && this.game.round.bets.every(b => b.playerId !== this.player.id)) {
             const bestSuit = this.getBestSuit()
 
             let betValue: null | number = null;
@@ -119,4 +117,12 @@ export class AIPlayer {
 
 }
 
-
+function callDefedred(cb: () => void) {
+    return () => setTimeout(() => {
+        try {
+            cb();
+        } catch(e) {
+            console.error(e)
+        }
+    }, 0);
+}

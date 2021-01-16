@@ -22,6 +22,10 @@ export function placeBet(game: GameModel, playerToken: string, value: number | n
         throw new UserError(`It is not player ${player.name}'s turn`)
     }
 
+    if (game.round.bets.some(b => b.playerId === player.id)) {
+        throw new UserError(`Player ${player.name} did already place a bet`)
+    }
+
     if (value !== null && (value < 1 || value > 5)) {
         throw new UserError(`Bet value out of range: ${value}`)
     }
