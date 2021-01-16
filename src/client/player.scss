@@ -8,6 +8,11 @@
     font-size: 12px;
   }
 
+  &--active &__name,
+  &--active &__score {
+    font-weight: bold;
+  }
+
   &__hand {
     position: relative;
     flex: 1 1 auto;
