@@ -7,11 +7,12 @@ import {EventType} from "../../shared/Event";
 import {getCardsAllowedToBePlayed} from "../logic/cardsAllowedToPlay";
 import assert from "assert";
 import {getHighestBet, placeBet} from "../logic/placeBet";
-import {Rank, Suit} from "../../shared/Card";
-import {RoundPhase} from "../../shared/PlayerGameState";
+import {Card, Rank, Suit} from "../../shared/Card";
+import {RoundPhase, Trick} from "../../shared/PlayerGameState";
 import {chooseTrumpSuit} from "../logic/chooseTrumpSuit";
 import {isWeli} from "../../shared/cardUtils";
 import {buyCards} from "../logic/buyCards";
+import {getHighestCardValue, getInitialSuit, sortCardsByValueAndRank} from "../logic/cardValues";
 
 let playerIndex = 1;
 
@@ -79,20 +80,39 @@ export class AIPlayer {
 
     private onPlayCard() {
         if (this.isMyTurn() && this.game.round?.phase === RoundPhase.Play) {
-            playCard(this.game, this.player.token, this.randomCard())
+            assert(this.game.round)
+            const trumpSuit = this.game.round.trumpSuit;
+            assert(trumpSuit !== undefined)
+            const trick = this.game.round.trick;
+            assert(trick)
+
+            const card = this.getBestCardToPlay(trick, trumpSuit);
+            playCard(this.game, this.player.token, card)
+        }
+    }
+
+    private getBestCardToPlay(trick: Trick, trumpSuit: Suit): Card {
+        const allowedCards = getCardsAllowedToBePlayed(this.player.cards, trick, trumpSuit)
+
+        if (trick.cards.length === 0) {
+            return randomCard(allowedCards)
+        }
+
+        const initialSuit: Suit = getInitialSuit(trick, trumpSuit)
+        const highestTrickValue = getHighestCardValue(trick.cards, initialSuit, trumpSuit)?.value
+        const sortedAllowedCards = sortCardsByValueAndRank(allowedCards, initialSuit, trumpSuit)
+
+        const highestHandValue = sortedAllowedCards[0].value;
+        if (typeof highestTrickValue === 'number' && highestHandValue <= highestTrickValue) {
+            const cardWithLeastValue = sortedAllowedCards[sortedAllowedCards.length - 1].card;
+            return cardWithLeastValue
+        } else {
+            return randomCard(allowedCards)
         }
     }
 
     private isMyTurn() {
         return this.game.round?.currentPlayerId === this.player.id;
-    }
-
-    private randomCard() {
-        assert(this.game.round)
-        assert(this.game.round.trumpSuit !== undefined)
-        assert(this.game.round.trick)
-        const allowedCards = getCardsAllowedToBePlayed(this.player.cards, this.game.round.trick, this.game.round.trumpSuit)
-        return allowedCards[Math.floor(Math.random() * allowedCards.length)]
     }
 
     private getBestSuit() {
@@ -115,6 +135,10 @@ export class AIPlayer {
         return bestSuit
     }
 
+}
+
+function randomCard(allowedCards: Card[]) {
+    return allowedCards[Math.floor(Math.random() * allowedCards.length)]
 }
 
 function callDefedred(cb: () => void) {

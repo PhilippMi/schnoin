@@ -1,15 +1,14 @@
 import {Card, Suit} from "../../shared/Card";
 import {Trick} from "../../shared/PlayerGameState";
 import {isWeli} from "../../shared/cardUtils";
-import {getCardValue, getHighestCardValue} from "./cardValues";
+import {getCardValue, getHighestCardValue, getInitialSuit} from "./cardValues";
 
 export function getCardsAllowedToBePlayed(cards: Card[], currentTrick: Trick, trumpSuit: Suit) {
     if (currentTrick.cards.length === 0) {
         return cards
     }
 
-    const initialTrickCard = currentTrick.cards[0].card;
-    const initialSuit: Suit = isWeli(initialTrickCard) ? trumpSuit : initialTrickCard.suit
+    const initialSuit: Suit = getInitialSuit(currentTrick, trumpSuit)
 
     const filterInitialSuit = filterSuit(initialSuit, trumpSuit);
     let cardWithRightSuit = cards.filter(filterInitialSuit)
